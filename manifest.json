@@ -1,0 +1,12 @@
+{
+  "name": "구구단성의 보물",
+  "short_name": "구구단성",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#120d20",
+  "theme_color": "#120d20",
+  "icons": [
+    { "src": "img/castle.png", "sizes": "400x400", "type": "image/png", "purpose": "any" }
+  ]
+}

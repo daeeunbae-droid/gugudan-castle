@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#120d20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>구구단성의 보물</title>
+<link rel="apple-touch-icon" href="img/castle.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+<!-- ============ 타이틀 ============ -->
+<section id="s-title" class="screen on">
+  <p class="eyebrow">GUGUDAN CASTLE</p>
+  <img class="castle" src="img/castle.png" alt="" onerror="artFail(this,'🏰')">
+  <h1>구구단성의<br>보물</h1>
+  <p class="sub">꼬불꼬불한 길을 따라 성으로.<br>드래곤을 넘어서면 보물이 있다.</p>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-continue" style="display:none" onclick="continueGame()">
+    이어하기<small id="continue-info"></small></button>
+  <div style="height:9px"></div>
+  <button class="btn ghost" onclick="show('s-select')">새로 시작하기</button>
+</section>
+
+<!-- ============ 캐릭터 · 난이도 ============ -->
+<section id="s-select" class="screen">
+  <p class="eyebrow">용사를 고르세요</p>
+  <div class="heroes">
+    <div class="hero sel" id="h-girl" onclick="pickHero('girl')">
+      <div class="face" id="face-girl"></div><b>여자 용사</b></div>
+    <div class="hero" id="h-boy" onclick="pickHero('boy')">
+      <div class="face" id="face-boy"></div><b>남자 용사</b></div>
+  </div>
+  <label class="filelabel" for="photo">📷 얼굴 사진 넣기</label>
+  <input type="file" id="photo" accept="image/*" onchange="loadPhoto(event)">
+  <div style="height:10px"></div>
+  <input type="text" id="pname" placeholder="이름을 적어주세요" maxlength="8">
+
+  <p class="eyebrow" style="margin-top:16px">난이도</p>
+  <div class="diffs">
+    <div class="dcard sel" data-d="easy"   onclick="pickDiff('easy')">
+      <b>🌱 연습</b><small>시간 제한 없음</small></div>
+    <div class="dcard" data-d="normal" onclick="pickDiff('normal')">
+      <b>⚔️ 모험</b><small>문제당 8초 · 골드 1.5배</small></div>
+    <div class="dcard" data-d="hard"   onclick="pickDiff('hard')">
+      <b>👑 챔피언</b><small>문제당 5초 · 골드 2.2배</small></div>
+  </div>
+  <p class="tiny">난이도는 게임 중에 언제든 설정에서 바꿀 수 있어요</p>
+  <div class="spacer"></div>
+  <button class="btn" onclick="startAdventure()">길을 나서자!</button>
+  <div style="height:9px"></div>
+  <button class="btn ghost" onclick="show('s-title')">뒤로</button>
+</section>
+
+<!-- ============ 지도 ============ -->
+<section id="s-map" class="screen">
+  <div class="hud">
+    <div class="who"><div class="mini hud-face"></div><span class="hud-name"></span></div>
+    <div class="hudright">
+      <span class="hud-diff pill"></span>
+      <span class="hud-gold pill"></span>
+      <button class="iconbtn" onclick="show('s-shop')">🎒</button>
+      <button class="iconbtn" onclick="openSettings()">⚙️</button>
+    </div>
+  </div>
+  <div id="mapscroll">
+    <div class="mapwrap" id="mapwrap">
+      <svg id="mapsvg" viewBox="0 0 360 1620" preserveAspectRatio="none">
+        <path id="road"  fill="none" stroke="#0c0818" stroke-width="26" stroke-linecap="round"/>
+        <path id="road2" fill="none" stroke="#c9a86a" stroke-width="9"  stroke-linecap="round"
+              stroke-dasharray="2 16"/>
+      </svg>
+      <div id="nodes"></div>
+      <div id="pet"></div>
+      <div id="walker"></div>
+    </div>
+  </div>
+  <p class="tap-hint" id="hint"></p>
+</section>
+
+<!-- ============ 훈련소 ============ -->
+<section id="s-train" class="screen">
+  <p class="eyebrow">훈련소</p>
+  <h2 id="tr-title">2단 훈련</h2>
+  <img class="trainer" src="img/camp.png" alt="" onerror="artFail(this,'⛺')">
+  <p class="sub" id="tr-sub"></p>
+  <div id="tr-body">
+    <div class="songbar">
+      <span id="song-label">훈련소 노래를 켜고 따라 불러요</span>
+      <button class="songbtn" id="btn-tune" onclick="Tune.toggle(Train.table)">▶ 노래</button>
+    </div>
+    <audio id="player" controls loop style="display:none"></audio>
+    <div class="card">
+      <div class="eq" id="tr-eq"></div>
+      <div class="chant" id="tr-chant"></div>
+      <div class="frame" id="tr-frame"></div>
+      <div class="decomp" id="tr-decomp"></div>
+      <div class="oneswrap"><div class="oneslabel">끝자리</div><div class="ones" id="tr-ones"></div></div>
+      <div id="tr-star"></div>
+      <div class="progdots" id="tr-dots"></div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" id="tr-next" onclick="Train.next()">다음</button>
+    <div style="height:9px"></div>
+    <button class="btn ghost" onclick="show('s-map')">지도로 돌아가기</button>
+  </div>
+  <div id="tr-potion" style="display:none"></div>
+</section>
+
+<!-- ============ 전투 ============ -->
+<section id="s-battle" class="screen">
+  <div class="btop"><span class="pill" id="bt-diff"></span></div>
+  <div class="bubble">
+    <div class="taunt" id="taunt"></div>
+    <div class="qtext" id="qtext"></div>
+  </div>
+  <div class="mobwrap">
+    <div class="mobart" id="mobart"></div>
+    <div class="mname" id="mobname"></div>
+  </div>
+  <div class="timerwrap" id="timerwrap" style="display:none"><div class="timerbar" id="timerbar"></div></div>
+  <div class="pips" id="pips"></div>
+  <div id="hintbox"></div>
+  <div class="feedback" id="fb"></div>
+  <div class="ansbox empty" id="ansbox">?</div>
+  <div class="statusbar">
+    <div class="hearts" id="hearts"></div>
+    <div class="potions" id="potions"></div>
+  </div>
+  <div class="pad" id="pad"></div>
+</section>
+
+<!-- ============ 퍼즐방 ============ -->
+<section id="s-jail" class="screen">
+  <p class="eyebrow">퍼즐방 · <span id="jl-count"></span></p>
+  <h2 id="jl-title"></h2>
+  <div class="jlmon" id="jl-mon"></div>
+  <p class="sub">틀렸던 것만 다시 봐요. 시간 제한은 없어요.</p>
+  <div class="card">
+    <div class="eq" id="jl-eq"></div>
+    <div class="chant" id="jl-chant"></div>
+    <div class="frame" id="jl-frame"></div>
+    <div class="decomp" id="jl-decomp"></div>
+  </div>
+  <div class="feedback" id="jl-fb"></div>
+  <div class="ansbox empty" id="jl-ans">?</div>
+  <div class="pad" id="jl-pad"></div>
+</section>
+
+<!-- ============ 결과 ============ -->
+<section id="s-result" class="screen" style="justify-content:center">
+  <div class="bigart" id="rs-art"></div>
+  <h2 id="rs-title"></h2>
+  <p class="sub" id="rs-sub"></p>
+  <div class="rewards" id="rs-reward"></div>
+  <div class="stats">
+    <div class="stat"><b id="rs-correct">0</b><small>맞힌 문제</small></div>
+    <div class="stat"><b id="rs-wrong">0</b><small>틀린 문제</small></div>
+    <div class="stat"><b id="rs-hearts">0</b><small>남은 하트</small></div>
+  </div>
+  <div style="height:14px"></div>
+  <button class="btn" id="rs-btn">계속</button>
+</section>
+
+<!-- ============ 가방 · 상점 ============ -->
+<section id="s-shop" class="screen">
+  <div class="hud">
+    <div class="who"><div class="mini hud-face"></div><span class="hud-name"></span></div>
+    <div class="hudright"><span class="hud-gold pill"></span></div>
+  </div>
+  <p class="eyebrow">가방 · 상점</p>
+  <div id="shop-body" class="scrollarea"></div>
+  <button class="btn ghost" onclick="show('s-map')">지도로</button>
+</section>
+
+<!-- ============ 설정 (보호자) ============ -->
+<section id="s-settings" class="screen">
+  <p class="eyebrow">설정</p>
+  <h2>보호자 설정</h2>
+  <div class="card">
+    <div class="setrow"><span>난이도</span></div>
+    <div class="dbtns" id="set-diff"></div>
+    <label class="setrow"><span>효과음</span><input type="checkbox" id="set-sfx"></label>
+    <label class="setrow"><span>훈련소 음악</span><input type="checkbox" id="set-music"></label>
+    <label class="setrow"><span>몬스터 음성</span><input type="checkbox" id="set-voice"></label>
+  </div>
+  <div class="card">
+    <div class="setrow"><span>가족 코드</span><b id="set-code">없음</b></div>
+    <p class="tiny">다른 기기에서 이어하려면 코드를 만들고, 그 기기에서 같은 코드를 입력하세요.</p>
+    <div class="row">
+      <button class="btn ghost" onclick="makeFamilyCode()">코드 만들기</button>
+      <button class="btn ghost" onclick="enterFamilyCode()">코드 입력</button>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" onclick="saveSettings()">저장하고 돌아가기</button>
+  <div style="height:9px"></div>
+  <button class="btn ghost danger" onclick="hardReset()">처음부터 다시 시작</button>
+</section>
+
+<!-- ============ 엔딩 ============ -->
+<section id="s-ending" class="screen" style="justify-content:center;text-align:center">
+  <img class="bigart" src="img/treasure-open.png" alt="" onerror="artFail(this,'💎')">
+  <p class="eyebrow">보물 획득</p>
+  <h1 style="font-size:28px">보물을 찾았다!</h1>
+  <p class="sub" id="ed-sub"></p>
+  <div class="stats">
+    <div class="stat"><b id="ed-correct">0</b><small>총 정답</small></div>
+    <div class="stat"><b id="ed-wrong">0</b><small>총 오답</small></div>
+    <div class="stat"><b id="ed-gold">0</b><small>골드</small></div>
+  </div>
+  <p class="mistakes" id="ed-weak"></p>
+  <div style="height:14px"></div>
+  <button class="btn" onclick="show('s-shop')">상점에서 쓰기</button>
+  <div style="height:9px"></div>
+  <button class="btn ghost" onclick="show('s-map')">지도로</button>
+</section>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/save.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/core.js"></script>
+<script src="js/map.js"></script>
+<script src="js/train.js"></script>
+<script src="js/battle.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
