@@ -38,7 +38,7 @@ function show(id){
   if(id!=='s-train') Tune.stop();
   if(id!=='s-battle' && id!=='s-jail') Voice.stop();
   if(id==='s-map') Map.refresh();
-  if(id==='s-shop') Shop.render();
+  if(id==='s-shop') Shop.open();      /* 들어올 때는 늘 인벤토리 탭부터 */
   if(id==='s-challenge') Challenge.render();
   drawHUD();
 }

@@ -7,9 +7,15 @@ const Shop = {
   /* 먹이 1개로 오르는 경험치 — 먹이 몇 개가 남았는지 안내할 때 씁니다. */
   get foodExp(){ return PET.foodExp; },
 
+  /* 'inv'(인벤토리) 또는 'shop'. 🎒 로 들어오면 항상 인벤토리부터. */
+  tab:'inv',
+  open(){ this.tab='inv'; this.render(); },
+  setTab(t){ this.tab=t; this.render(); $('shop-body').scrollTop=0; },
+
   /* 펫 칸. 알일 때는 "먹이를 주면 부화한다"를 크게 알려줍니다.
-     경험치는 데리고 다니는 펫에게만 쌓이므로 그 펫을 보여 줍니다.     */
-  petHTML(){
+     경험치는 데리고 다니는 펫에게만 쌓이므로 그 펫을 보여 줍니다.
+     교체 그리드(.petswitch)는 인벤토리 탭에서만 보여 줍니다.        */
+  petHTML(withSwitch){
     const s=Save.s;
     let h='<div class="shoplabel">내 펫</div>';
     const art=Save.petArt();
@@ -36,9 +42,9 @@ const Shop = {
           <div class="petbar"><i style="width:${pct}%"></i></div>
           <small>${bartext}</small></div>
       </div>`;
-    /* 두 마리 이상이면 데리고 다닐 펫을 여기서 바꿉니다 */
+    /* 두 마리 이상이면 데리고 다닐 펫을 여기서 바꿉니다 (인벤토리 탭에서만) */
     const mine=Save.ownedPets();
-    if(mine.length>1){
+    if(withSwitch && mine.length>1){
       h+='<div class="petswitch">';
       mine.forEach(sp=>{
         const a=Save.petArt(sp.id);
@@ -89,18 +95,39 @@ const Shop = {
     coinSfx(); commit(); this.render(); drawHUD();
   },
 
-  render(){
+  /* ---------- 인벤토리 탭 — 보기 전용 (구매 버튼 없음) ---------- */
+  invHTML(){
     const s=Save.s;
-    /* 펫이 맨 위 — 먹이를 왜 사는지 먼저 보이도록 */
-    let h=this.petHTML();
-    /* 몬스터에게서 얻은 아이템 */
-    const owned=Object.values(DROPS).filter(d=>s.items.includes(d.id));
-    if(owned.length){
+    let h=this.petHTML(true);          /* 교체 그리드 포함 */
+    /* 몬스터에게서 얻은 것 */
+    const drops=Object.values(DROPS).filter(d=>s.items.includes(d.id));
+    if(drops.length){
       h+='<div class="shoplabel">모험으로 얻은 것</div><div class="grid">';
-      owned.forEach(d=>{ h+=`<div class="sitem got"><div class="se">${d.e}</div>
-        <b>${d.name}</b><small>전리품</small></div>`; });
+      drops.forEach(d=>{ h+=`<div class="sitem got" onclick="Shop.tapItem()">
+        <div class="se">${d.e}</div><b>${d.name}</b><small>전리품</small></div>`; });
       h+='</div>';
     }
+    /* 상점에서 산 것 — 먹이 같은 소모품은 남지 않으므로 제외 */
+    const bought=SHOP.filter(it=>s.items.includes(it.id) && !it.repeat);
+    if(bought.length){
+      h+='<div class="shoplabel">상점에서 산 것</div><div class="grid">';
+      bought.forEach(it=>{ h+=`<div class="sitem got" onclick="Shop.tapItem()">
+        <div class="se">${it.e}</div><b>${it.name}</b><small>${it.tag}</small></div>`; });
+      h+='</div>';
+    }
+    if(!drops.length && !bought.length){
+      h+='<div class="shoplabel">가진 물건</div><p class="tiny">아직 모은 물건이 없어요</p>';
+    }
+    return h;
+  },
+
+  /* 옷·검 착용은 그림이 준비되면 붙입니다 */
+  tapItem(){ toast('착용 기능은 곧 추가될 예정이에요'); },
+
+  /* ---------- 상점 탭 — 구매 ---------- */
+  shopHTML(){
+    const s=Save.s;
+    let h=this.petHTML(false);         /* 먹이를 누구에게 주는지 알 수 있게 요약만 */
     h+='<div class="shoplabel">상점</div><div class="grid">';
     SHOP.forEach(it=>{
       const have=s.items.includes(it.id);
@@ -114,8 +141,16 @@ const Shop = {
           <small>${have&&!it.repeat?'보유 중':'🪙 '+it.price}</small>${desc}</div>`;
     });
     h+='</div>';
-    h+=this.petShopHTML();
-    $('shop-body').innerHTML=h;
+    return h+this.petShopHTML();
+  },
+
+  render(){
+    const inv=this.tab!=='shop';
+    let h=`<div class="shoptabs">
+        <div class="stab${inv?' sel':''}" onclick="Shop.setTab('inv')">🎒 인벤토리</div>
+        <div class="stab${inv?'':' sel'}" onclick="Shop.setTab('shop')">🪙 상점</div>
+      </div>`;
+    $('shop-body').innerHTML = h + (inv ? this.invHTML() : this.shopHTML());
   },
   buy(id){
     const it=SHOP.find(x=>x.id===id), s=Save.s;
