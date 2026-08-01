@@ -4,9 +4,43 @@
 
 /* ---------- 상점 ---------- */
 const Shop = {
+  /* 먹이 1개로 오르는 경험치 — 먹이 몇 개가 남았는지 안내할 때 씁니다. */
+  foodExp: 15,
+
+  /* 펫 칸. 알일 때는 "먹이를 주면 부화한다"를 크게 알려줍니다.       */
+  petHTML(){
+    const s=Save.s;
+    let h='<div class="shoplabel">내 펫</div>';
+    if(!s.pet.owned){
+      h+=`<div class="petbox empty">${artHTML('','🥚','petart')}
+            <div><b>아직 펫이 없어요</b>
+              <small>드래곤을 물리치면 펫 알을 받아요</small></div>
+          </div>`;
+      return h;
+    }
+    const st=Save.petStage(), p=PET.stages[st], nxt=PET.stages[st+1];
+    const pct = nxt ? Math.min(100,(s.pet.exp-p.need)/(nxt.need-p.need)*100) : 100;
+    let note='', bartext;
+    if(st===0 && nxt){                       /* 아직 알 */
+      const left=nxt.need-s.pet.exp;
+      const food=Math.ceil(left/this.foodExp);
+      note=`<div class="pethatch">🍖 펫 먹이를 주면 알이 부화해요!</div>`;
+      bartext=`정답 ${left}개 또는 먹이 ${food}개`;
+    } else {
+      bartext = nxt ? `정답 ${nxt.need-s.pet.exp}개 더 모으면 자라요` : '다 자랐어요!';
+    }
+    h+=note+`<div class="petbox">${artHTML(p.f,p.e,'petart')}
+        <div><b>${s.pet.name}</b> · ${p.label}
+          <div class="petbar"><i style="width:${pct}%"></i></div>
+          <small>${bartext}</small></div>
+      </div>`;
+    return h;
+  },
+
   render(){
     const s=Save.s;
-    let h='';
+    /* 펫이 맨 위 — 먹이를 왜 사는지 먼저 보이도록 */
+    let h=this.petHTML();
     /* 몬스터에게서 얻은 아이템 */
     const owned=Object.values(DROPS).filter(d=>s.items.includes(d.id));
     if(owned.length){
@@ -21,21 +55,13 @@ const Shop = {
       const can=s.wallet.gold>=it.price;
       const cls = have&&!it.repeat ? 'sitem got' : (can?'sitem':'sitem poor');
       const act = (have&&!it.repeat) ? '' : (can?`onclick="Shop.buy('${it.id}')"`:'');
+      const desc = it.id==='food-pet'
+        ? `<em>알을 깨우고 펫을 키워요 · 경험치 +${this.foodExp}</em>` : '';
       h+=`<div class="${cls}" ${act}><div class="se">${it.e}</div>
           <b>${it.name}</b>
-          <small>${have&&!it.repeat?'보유 중':'🪙 '+it.price}</small></div>`;
+          <small>${have&&!it.repeat?'보유 중':'🪙 '+it.price}</small>${desc}</div>`;
     });
     h+='</div>';
-    if(s.pet.owned){
-      const st=Save.petStage(), p=PET.stages[st];
-      const nxt=PET.stages[st+1];
-      h+=`<div class="shoplabel">내 펫</div>
-        <div class="petbox">${artHTML(p.f,p.e,'petart')}
-          <div><b>${s.pet.name}</b> · ${p.label}
-          <div class="petbar"><i style="width:${nxt?Math.min(100,(s.pet.exp-p.need)/(nxt.need-p.need)*100):100}%"></i></div>
-          <small>${nxt?`정답 ${nxt.need-s.pet.exp}개 더 모으면 자라요`:'다 자랐어요!'}</small></div>
-        </div>`;
-    }
     $('shop-body').innerHTML=h;
   },
   buy(id){
@@ -43,7 +69,14 @@ const Shop = {
     if(!it || s.wallet.gold<it.price) return;
     Save.gold(-it.price);
     if(it.id==='food-pet'){
-      if(s.pet.owned){ s.pet.exp+=15; toast('🍖 펫이 좋아해요! 경험치 +15'); }
+      if(s.pet.owned){
+        const was=Save.petStage();          /* 부화 여부를 먹이기 전후로 비교 */
+        s.pet.exp+=this.foodExp;
+        const now=Save.petStage();
+        if(was===0 && now>was)   toast('🎉 알이 부화했어요!');
+        else if(now===0)         toast(`🍖 알이 조금 더 갈라졌어요! (+${this.foodExp})`);
+        else                     toast(`🍖 펫이 좋아해요! (+${this.foodExp})`);
+      }
       else toast('아직 펫이 없어요');
     } else {
       Save.addItem(it.id);

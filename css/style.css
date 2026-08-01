@@ -309,7 +309,13 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 .chgo{color:var(--torch);font-size:18px}
 
 /* 상점 */
-.scrollarea{flex:1;overflow-y:auto;margin:8px 0}
+.scrollarea{flex:1;min-height:0;overflow-y:auto;margin:8px 0}
+/* 상점도 전투·훈련소와 같은 구조 — 목록만 스크롤하고 '지도로'는 항상 아래 고정.
+   min-height 로 두면 섹션이 늘어나 버려서 버튼이 화면 밖으로 밀린다. */
+#s-shop.on{height:var(--vh,100dvh);overflow:hidden}
+#shop-body{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent);
+  mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent)}
+#shop-body::-webkit-scrollbar{width:0}
 .shoplabel{font-family:'Gaegu',cursive;font-size:14px;color:var(--torch);margin:10px 0 6px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .sitem{background:rgba(0,0,0,.3);border:2px solid #3d2f66;border-radius:12px;
@@ -321,6 +327,14 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 .sitem.got{border-color:#3f7d5e;opacity:.75;cursor:default}
 .sitem.got small{color:#8fd6ae}
 .sitem.poor{opacity:.45;cursor:not-allowed}
+/* 펫 먹이처럼 설명이 필요한 물건에만 붙는 한 줄 */
+.sitem em{display:block;font-style:normal;font-family:'Gaegu',cursive;font-size:10px;
+  line-height:1.25;color:var(--muted);margin-top:3px}
+/* 알 상태 안내 — 상점에서 가장 먼저 눈에 띄어야 하는 문구 */
+.pethatch{background:rgba(255,181,69,.14);border:2px solid var(--torch);border-radius:12px;
+  padding:9px 10px;margin-bottom:7px;text-align:center;font-size:15px;color:var(--torch)}
+.petbox.empty{opacity:.7}
+.petbox.empty .petart{filter:grayscale(.6)}
 .petbox{display:flex;gap:12px;align-items:center;background:rgba(86,224,200,.09);
   border:2px solid rgba(86,224,200,.3);border-radius:14px;padding:10px}
 .petart{width:56px;height:56px;object-fit:contain;font-size:40px}
