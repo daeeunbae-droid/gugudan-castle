@@ -72,12 +72,11 @@ const Map = {
       ? `<img src="${s.player.photo}" style="border-radius:50%">`
       : artHTML('hero-'+s.player.hero+'.png', s.player.hero==='girl'?'🧝':'🧑','');
     const petEl=$('pet');
-    const st=Save.petStage();
-    if(st<0){ petEl.style.display='none'; }
+    const art=Save.petArt();          /* 데리고 다니는 펫 기준 */
+    if(!art){ petEl.style.display='none'; }
     else{
       petEl.style.display='block';
-      const p=PET.stages[st];
-      petEl.innerHTML=artHTML(p.f,p.e,'');
+      petEl.innerHTML=artHTML(art.f,art.e,'');
     }
   },
 

@@ -340,6 +340,16 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
   padding:9px 10px;margin-bottom:7px;text-align:center;font-size:15px;color:var(--torch)}
 .petbox.empty{opacity:.7}
 .petbox.empty .petart{filter:grayscale(.6)}
+/* 데리고 다닐 펫 고르기 — 두 마리 이상일 때만 나옵니다 */
+.petswitch{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:7px}
+.petpick{background:rgba(0,0,0,.3);border:2px solid #3d2f66;border-radius:12px;
+  padding:7px 3px;text-align:center;cursor:pointer}
+.petpick:active{transform:scale(.97)}
+.petpick.on{border-color:var(--potion);background:rgba(86,224,200,.14)}
+.petpick b{display:block;font-size:11px;margin-top:2px}
+.petpick small{display:block;font-size:10px;color:var(--muted);font-family:'Gaegu',cursive}
+.petpick.on small{color:var(--potion)}
+.petmini{width:34px;height:34px;object-fit:contain;font-size:26px}
 .petbox{display:flex;gap:12px;align-items:center;background:rgba(86,224,200,.09);
   border:2px solid rgba(86,224,200,.3);border-radius:14px;padding:10px}
 .petart{width:56px;height:56px;object-fit:contain;font-size:40px}

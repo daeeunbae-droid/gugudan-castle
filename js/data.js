@@ -67,14 +67,30 @@ const POTIONS = {
 };
 const POTION_MAX = 5;
 
-/* ---------- 펫 ---------- */
+/* ---------- 펫 ----------
+   4종 모두 "알"로 받아서 같은 방식으로 부화합니다.
+   알 그림은 종에 상관없이 하나를 같이 씁니다.
+   파일명만 적습니다 — artHTML() 이 앞에 img/ 를 붙여 줍니다.       */
 const PET = {
+  eggF:'pet-egg.png', eggE:'🥚',
   stages:[
-    {need:0,   f:'pet-0.png', e:'🥚', label:'알'},
-    {need:30,  f:'pet-1.png', e:'🐣', label:'아기 드래곤'},
-    {need:120, f:'pet-2.png', e:'🐲', label:'꼬마 드래곤'}
+    {need:0,   label:'알'},
+    {need:30,  label:'아기'},
+    {need:120, label:'다 자란'}
   ],
-  expPerCorrect:1
+  expPerCorrect:1,
+  foodExp:15          // 펫 먹이 1개로 오르는 경험치
+};
+
+const PET_SPECIES = {
+  dragon:{ id:'dragon', name:'드래곤',  f1:'pet-dragon-1.png', f2:'pet-dragon-2.png',
+           e1:'🐣', e2:'🐲', source:'boss' },
+  cat:   { id:'cat',    name:'고양이',  f1:'pet-cat-1.png',    f2:'pet-cat-2.png',
+           e1:'🐱', e2:'🐈', source:'shop', price:180 },
+  dog:   { id:'dog',    name:'강아지',  f1:'pet-dog-1.png',    f2:'pet-dog-2.png',
+           e1:'🐶', e2:'🐕', source:'shop', price:180 },
+  lizard:{ id:'lizard', name:'도마뱀',  f1:'pet-lizard-1.png', f2:'pet-lizard-2.png',
+           e1:'🦎', e2:'🐊', source:'shop', price:180 }
 };
 
 /* ---------- 단을 고를 때 보여줄 힌트 (lv 낮을수록 쉬움 → 위에 표시) ---------- */

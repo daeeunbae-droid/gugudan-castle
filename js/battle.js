@@ -190,7 +190,7 @@ const Battle = {
     const drop = DROPS[B.mon.t];
     if(!s.progress.cleared.includes(B.mon.t)) s.progress.cleared.push(B.mon.t);
     Save.addItem(drop.id);
-    if(boss){ s.pet.owned=true; }
+    if(boss){ Save.grantPet('dragon'); }   /* 드래곤도 알로 받아서 부화시킵니다 */
     Save.gold(gold);
     commit(true);
 

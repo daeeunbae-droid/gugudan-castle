@@ -3,7 +3,16 @@
    sync.js 가 설정돼 있으면 클라우드로 복사됩니다.
 ========================================================= */
 const SAVE_KEY = 'gugudan-castle-v1';
-const SAVE_VERSION = 1;
+const SAVE_VERSION = 2;
+
+/* 종별 펫 보유 칸을 기본값으로 만들어 둡니다 (없으면 빈 오브젝트) */
+function blankPets(){
+  const o={};
+  if(typeof PET_SPECIES!=='undefined'){
+    Object.values(PET_SPECIES).forEach(sp=>{ o[sp.id]={owned:false, exp:0, name:sp.name}; });
+  }
+  return o;
+}
 
 function blankSave(){
   return {
@@ -15,7 +24,8 @@ function blankSave(){
     potions:  { energy:0, time:0, hint:0 },
     items:    [],                 // 획득/구매한 아이템 id
     equipped: {},                 // {머리:'crown', 무기:'sword-gold'}
-    pet:      { owned:false, exp:0, name:'꼬미' },
+    pets:     blankPets(),        // 종별 { owned, exp, name }
+    activePet: null,              // 지금 데리고 다니는 종 id (한 마리만)
     facts:    {},                 // "7x8": {seen, wrong}
     stats:    { correct:0, wrong:0, plays:0 },
     settings: { sfx:true, music:true, voice:true },
@@ -59,6 +69,18 @@ function migrate(d){
   const base = blankSave();
   if(!d || typeof d!=='object') return base;
   if(!d.v) d.v = 1;
+  /* v1 → v2 : 펫 한 마리(드래곤 고정) → 종별 보유 구조.
+     예전 저장에서 펫을 갖고 있었다면 드래곤으로 옮기고 경험치도 유지합니다. */
+  if(d.v < 2){
+    const old = d.pet;
+    d.pets = d.pets || {};
+    if(old && old.owned){
+      d.pets.dragon = { owned:true, exp:old.exp||0, name:old.name||'드래곤' };
+      d.activePet = 'dragon';
+    }
+    delete d.pet;
+    d.v = 2;
+  }
   // 누락 필드 채우기 (구버전 저장이 들어와도 죽지 않도록)
   for(const k of Object.keys(base)){
     if(d[k]===undefined) d[k]=base[k];
@@ -97,7 +119,11 @@ const Save = {
     const f = S.facts[k] || (S.facts[k]={seen:0,wrong:0});
     f.seen++; if(!ok) f.wrong++;
     if(ok) S.stats.correct++; else S.stats.wrong++;
-    if(ok && S.pet.owned) S.pet.exp += PET.expPerCorrect;
+    /* 경험치는 지금 데리고 다니는 펫에게만 쌓입니다 */
+    if(ok){
+      const p = this.petOf();
+      if(p && p.owned) p.exp += PET.expPerCorrect;
+    }
   },
   weakest(n){
     return Object.entries(S.facts)
@@ -105,10 +131,45 @@ const Save = {
       .sort((a,b)=> (b[1].wrong/b[1].seen) - (a[1].wrong/a[1].seen))
       .slice(0, n||5).map(([k])=>k);
   },
-  petStage(){
-    if(!S.pet.owned) return -1;
+  /* ---------- 펫 ----------
+     인자를 안 주면 "지금 데리고 다니는 펫"이 기준입니다.        */
+  petOf(sp){
+    const id = sp || S.activePet;
+    return id ? S.pets[id] : null;
+  },
+  ownedPets(){
+    return Object.values(PET_SPECIES).filter(sp => S.pets[sp.id] && S.pets[sp.id].owned);
+  },
+  petStage(sp){
+    const p = this.petOf(sp);
+    if(!p || !p.owned) return -1;
     let st=0;
-    PET.stages.forEach((s,i)=>{ if(S.pet.exp>=s.need) st=i; });
+    PET.stages.forEach((s,i)=>{ if(p.exp>=s.need) st=i; });
     return st;
+  },
+  /* 화면에 그릴 그림·이름. 알일 때는 종과 상관없이 같은 알 그림입니다. */
+  petArt(sp){
+    const id = sp || S.activePet;
+    const st = this.petStage(id);
+    if(st<0) return null;
+    const spec = PET_SPECIES[id], stage = PET.stages[st];
+    const nm = (this.petOf(id) || {}).name || spec.name;   /* 예전에 지어 준 이름을 지킵니다 */
+    if(st===0) return { f:PET.eggF, e:PET.eggE, label:stage.label, name:nm };
+    return { f: st>=2?spec.f2:spec.f1, e: st>=2?spec.e2:spec.e1,
+             label: stage.label+' '+spec.name, name:nm };
+  },
+  /* 알로 지급. 데리고 다니는 펫이 없으면 자동으로 그 펫이 됩니다. */
+  grantPet(sp){
+    const p = S.pets[sp];
+    if(!p || p.owned) return false;
+    p.owned = true; p.exp = 0;
+    if(!S.activePet) S.activePet = sp;
+    commit(true);
+    return true;
+  },
+  setActivePet(sp){
+    if(!S.pets[sp] || !S.pets[sp].owned) return false;
+    S.activePet = sp; commit();
+    return true;
   }
 };
