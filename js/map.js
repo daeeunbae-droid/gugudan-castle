@@ -63,6 +63,8 @@ const Map = {
       ? (nxt.type==='train' ? '훈련소로 이동하세요'
         : nxt.type==='treasure' ? '보물 상자를 여세요' : '몬스터에게 도전하세요')
       : '';
+    /* 도전 모드는 드래곤을 잡은 뒤에만 보입니다 */
+    $('btn-challenge').style.display = Challenge.unlocked() ? '' : 'none';
     this.scroll();
   },
 

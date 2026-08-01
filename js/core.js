@@ -39,6 +39,7 @@ function show(id){
   if(id!=='s-battle' && id!=='s-jail') Voice.stop();
   if(id==='s-map') Map.refresh();
   if(id==='s-shop') Shop.render();
+  if(id==='s-challenge') Challenge.render();
   drawHUD();
 }
 function on(id){ return curScreen===id; }

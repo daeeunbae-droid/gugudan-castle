@@ -94,6 +94,8 @@ function artFail(img,emoji){
     </div>
   </div>
   <p class="tap-hint" id="hint"></p>
+  <button class="btn" id="btn-challenge" style="display:none"
+          onclick="show('s-challenge')">🏆 도전 모드</button>
 </section>
 
 <!-- ============ 훈련소 ============ -->
@@ -197,6 +199,50 @@ function artFail(img,emoji){
   <div id="ch-list" class="scrollarea"></div>
 </section>
 
+<!-- ============ 도전 모드 · 모드 고르기 ============ -->
+<section id="s-challenge" class="screen">
+  <p class="eyebrow">도전 모드</p>
+  <h2>어떤 연습을 해볼까?</h2>
+  <p class="sub">20문제를 풀고 맞힌 만큼 골드를 받아요</p>
+  <div id="cg-list"></div>
+  <div id="cg-foot">
+    <button class="btn ghost" onclick="show('s-map')">지도로</button>
+  </div>
+</section>
+
+<!-- ============ 도전 모드 · 문제 풀기 ============ -->
+<section id="s-cq" class="screen">
+  <div class="btop"><span class="pill" id="cq-mode"></span></div>
+  <div id="cq-scroll">
+    <div class="bubble">
+      <div class="taunt" id="cq-count"></div>
+      <div class="qtext" id="cq-q"></div>
+    </div>
+    <div class="cqbar"><i id="cq-bar"></i></div>
+  </div>
+  <div id="cq-foot">
+    <div class="feedback" id="cq-fb"></div>
+    <div class="ansbox empty" id="cq-ans">?</div>
+    <div class="pad" id="cq-pad"></div>
+  </div>
+</section>
+
+<!-- ============ 도전 모드 · 결과 ============ -->
+<section id="s-cdone" class="screen" style="justify-content:center">
+  <p class="eyebrow">도전 모드</p>
+  <h2 id="cd-title"></h2>
+  <p class="sub" id="cd-sub"></p>
+  <div class="stats">
+    <div class="stat"><b id="cd-correct">0</b><small>맞힌 문제</small></div>
+    <div class="stat"><b id="cd-wrong">0</b><small>틀린 문제</small></div>
+    <div class="stat"><b id="cd-gold">0</b><small>받은 골드</small></div>
+  </div>
+  <div style="height:14px"></div>
+  <button class="btn" onclick="show('s-challenge')">한 번 더</button>
+  <div style="height:9px"></div>
+  <button class="btn ghost" onclick="show('s-map')">지도로</button>
+</section>
+
 <!-- ============ 가방 · 상점 ============ -->
 <section id="s-shop" class="screen">
   <div class="hud">
@@ -261,6 +307,7 @@ function artFail(img,emoji){
 <script src="js/map.js?v=15"></script>
 <script src="js/train.js?v=15"></script>
 <script src="js/battle.js?v=15"></script>
+<script src="js/challenge.js?v=15"></script>
 <script src="js/main.js?v=15"></script>
 </body>
 </html>
