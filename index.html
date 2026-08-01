@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=14">
+<link rel="stylesheet" href="css/style.css?v=15">
 <script>
 /* 이미지 로드 실패 시 이모지로 대체. core.js 보다 먼저 필요하므로 여기 둡니다. */
 function artFail(img,emoji){
@@ -129,41 +129,49 @@ function artFail(img,emoji){
 <!-- ============ 전투 ============ -->
 <section id="s-battle" class="screen">
   <div class="btop"><span class="pill" id="bt-diff"></span></div>
-  <div class="bubble">
-    <div class="taunt" id="taunt"></div>
-    <div class="qtext" id="qtext"></div>
+  <div id="bt-scroll">
+    <div class="bubble">
+      <div class="taunt" id="taunt"></div>
+      <div class="qtext" id="qtext"></div>
+    </div>
+    <div class="mobwrap">
+      <div class="mobart" id="mobart"></div>
+      <div class="mname" id="mobname"></div>
+    </div>
+    <div class="timerwrap" id="timerwrap" style="display:none"><div class="timerbar" id="timerbar"></div></div>
+    <div class="pips" id="pips"></div>
+    <div id="hintbox"></div>
   </div>
-  <div class="mobwrap">
-    <div class="mobart" id="mobart"></div>
-    <div class="mname" id="mobname"></div>
+  <div id="bt-foot">
+    <div class="feedback" id="fb"></div>
+    <div class="ansbox empty" id="ansbox">?</div>
+    <div class="statusbar">
+      <div class="hearts" id="hearts"></div>
+      <div class="potions" id="potions"></div>
+    </div>
+    <div class="pad" id="pad"></div>
   </div>
-  <div class="timerwrap" id="timerwrap" style="display:none"><div class="timerbar" id="timerbar"></div></div>
-  <div class="pips" id="pips"></div>
-  <div id="hintbox"></div>
-  <div class="feedback" id="fb"></div>
-  <div class="ansbox empty" id="ansbox">?</div>
-  <div class="statusbar">
-    <div class="hearts" id="hearts"></div>
-    <div class="potions" id="potions"></div>
-  </div>
-  <div class="pad" id="pad"></div>
 </section>
 
 <!-- ============ 퍼즐방 ============ -->
 <section id="s-jail" class="screen">
   <p class="eyebrow">퍼즐방 · <span id="jl-count"></span></p>
   <h2 id="jl-title"></h2>
-  <div class="jlmon" id="jl-mon"></div>
-  <p class="sub">틀렸던 것만 다시 봐요. 시간 제한은 없어요.</p>
-  <div class="card">
-    <div class="eq" id="jl-eq"></div>
-    <div class="chant" id="jl-chant"></div>
-    <div class="frame" id="jl-frame"></div>
-    <div class="decomp" id="jl-decomp"></div>
+  <div id="jl-scroll">
+    <div class="jlmon" id="jl-mon"></div>
+    <p class="sub">틀렸던 것만 다시 봐요. 시간 제한은 없어요.</p>
+    <div class="card">
+      <div class="eq" id="jl-eq"></div>
+      <div class="chant" id="jl-chant"></div>
+      <div class="frame" id="jl-frame"></div>
+      <div class="decomp" id="jl-decomp"></div>
+    </div>
   </div>
-  <div class="feedback" id="jl-fb"></div>
-  <div class="ansbox empty" id="jl-ans">?</div>
-  <div class="pad" id="jl-pad"></div>
+  <div id="jl-foot">
+    <div class="feedback" id="jl-fb"></div>
+    <div class="ansbox empty" id="jl-ans">?</div>
+    <div class="pad" id="jl-pad"></div>
+  </div>
 </section>
 
 <!-- ============ 결과 ============ -->
@@ -245,14 +253,14 @@ function artFail(img,emoji){
 
 </div>
 
-<script src="js/data.js?v=14"></script>
-<script src="js/sync.js?v=14"></script>
-<script src="js/save.js?v=14"></script>
-<script src="js/audio.js?v=14"></script>
-<script src="js/core.js?v=14"></script>
-<script src="js/map.js?v=14"></script>
-<script src="js/train.js?v=14"></script>
-<script src="js/battle.js?v=14"></script>
-<script src="js/main.js?v=14"></script>
+<script src="js/data.js?v=15"></script>
+<script src="js/sync.js?v=15"></script>
+<script src="js/save.js?v=15"></script>
+<script src="js/audio.js?v=15"></script>
+<script src="js/core.js?v=15"></script>
+<script src="js/map.js?v=15"></script>
+<script src="js/train.js?v=15"></script>
+<script src="js/battle.js?v=15"></script>
+<script src="js/main.js?v=15"></script>
 </body>
 </html>

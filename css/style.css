@@ -88,7 +88,9 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
 #s-map.on{height:var(--vh,100dvh);overflow:hidden}
 /* 훈련소·퍼즐방: 화면에 고정하고 안쪽 내용만 스크롤 → 아래 버튼이 항상 제자리 */
 #s-train.on, #s-jail.on{height:var(--vh,100dvh);overflow:hidden}
-#s-battle.on{min-height:var(--vh,100dvh)}
+/* 전투도 훈련소와 같은 구조 — 화면을 넘기지 않고, 안쪽 스크롤 영역만 움직인다.
+   타이머·힌트박스가 나타나도 키패드가 화면 밖으로 밀리지 않게 하기 위함. */
+#s-battle.on{height:var(--vh,100dvh);overflow:hidden}
 
 /* 지도 */
 #mapscroll{flex:1;overflow-y:auto;overflow-x:hidden;margin:9px -6px;border-radius:16px;
@@ -150,7 +152,13 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 /* 아래 버튼 묶음은 스크롤과 무관하게 항상 같은 자리 */
 #tr-foot{flex:none;display:flex;flex-direction:column;gap:8px;padding-top:8px;
   border-top:1px solid rgba(255,255,255,.07)}
-#s-jail .jlscroll{flex:1;min-height:0;overflow-y:auto}
+/* 퍼즐방도 전투와 같은 구조 — 답칸·피드백·키패드는 항상 화면에 남는다 */
+#jl-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;padding-bottom:4px;
+  -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent);
+  mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent)}
+#jl-scroll::-webkit-scrollbar{width:0}
+#jl-foot{flex:none;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
 .card{background:rgba(0,0,0,.34);border:2px solid #34275c;border-radius:18px;
   padding:12px 10px;margin:8px 0}
 .eq{font-size:30px;text-align:center}
@@ -204,6 +212,14 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 
 /* 전투 */
 .btop{text-align:center;flex:none;margin-bottom:6px}
+/* 문제·몬스터·답칸은 여기서 스크롤. 훈련소 #tr-scroll 과 같은 방식 */
+#bt-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;padding-bottom:4px;
+  -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent);
+  mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent)}
+#bt-scroll::-webkit-scrollbar{width:0}
+/* 하트·포션과 키패드는 스크롤과 무관하게 항상 같은 자리 */
+#bt-foot{flex:none;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
 .bubble{position:relative;background:var(--parch);color:#241a3d;border-radius:18px;
   padding:12px 14px;text-align:center;box-shadow:0 6px 0 #b8ad99;flex:none}
 .bubble::after{content:'';position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);

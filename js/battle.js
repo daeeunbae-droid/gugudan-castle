@@ -53,6 +53,8 @@ const Battle = {
     $('taunt').textContent=B.mon.taunt[Math.floor(Math.random()*B.mon.taunt.length)];
     $('fb').textContent='';
     $('hintbox').innerHTML='';
+    /* 힌트를 보느라 아래로 내려가 있어도 새 문제는 맨 위부터 보이게 */
+    $('bt-scroll').scrollTop=0;
     this.render();
     const myId=B.qid;
     Voice.play('ask',a,b).then(()=>{ if(B.qid===myId && !B.locked) this.startTimer(); });
@@ -257,6 +259,8 @@ const Jail = {
     $('jl-decomp').innerHTML=Train.decompHTML(f.a*f.b);
     $('jl-ans').textContent='?'; $('jl-ans').classList.add('empty');
     $('jl-fb').textContent='';
+    /* 새 문제는 맨 위(식·프레임)부터 보이게 */
+    $('jl-scroll').scrollTop=0;
     this.buf='';
   },
 
