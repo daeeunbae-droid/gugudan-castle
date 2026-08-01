@@ -1,0 +1,18 @@
+# 줄바꿈 정규화
+# 저장소에는 항상 LF로 저장하고, 작업본도 LF로 받는다.
+# (Git for Windows 기본값인 core.autocrlf=true 에 좌우되지 않도록 명시)
+* text=auto eol=lf
+
+# 바이너리 — 절대 줄바꿈 변환하지 말 것
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.mp3  binary
+*.wav  binary
+*.ogg  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
