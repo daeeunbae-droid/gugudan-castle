@@ -4,14 +4,17 @@
   --parch:#f6efe0; --muted:#9c8fc4; --shadow:#0a0714;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;height:100%}
+html,body{margin:0;padding:0;min-height:100%}
+html{-webkit-text-size-adjust:100%}
 body{background:var(--void);color:var(--parch);overflow-x:hidden;
   font-family:'Jua','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif}
-#app{max-width:460px;margin:0 auto;height:100dvh;position:relative;overflow:hidden;
+#app{max-width:460px;margin:0 auto;min-height:var(--vh,100dvh);position:relative;overflow-x:hidden;
   background:radial-gradient(120% 60% at 50% 0%,rgba(255,181,69,.10),transparent 60%),
-    repeating-linear-gradient(0deg,var(--stone) 0 38px,var(--stone2) 38px 40px),var(--void)}
-.screen{display:none;height:100dvh;flex-direction:column;
-  padding:calc(14px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom))}
+    repeating-linear-gradient(0deg,var(--stone) 0 38px,var(--stone2) 38px 40px),var(--void);
+  background-attachment:fixed}
+.screen{display:none;min-height:var(--vh,100dvh);flex-direction:column;
+  padding:calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
 .screen.on{display:flex;animation:fade .3s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .emoji{display:inline-flex;align-items:center;justify-content:center;line-height:1}
@@ -26,6 +29,7 @@ h2{font-size:21px;margin:0;text-align:center}
   font-family:'Gaegu',cursive;line-height:1.5}
 
 .btn{display:block;width:100%;border:0;cursor:pointer;font-family:inherit;font-size:19px;
+  flex:none;
   color:#2b1a06;background:linear-gradient(180deg,#ffd27a,var(--torch));padding:14px;
   border-radius:14px;box-shadow:0 5px 0 #a86d1a,0 10px 18px rgba(0,0,0,.4)}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 #a86d1a}
@@ -40,7 +44,7 @@ h2{font-size:21px;margin:0;text-align:center}
 
 /* 타이틀 */
 #s-title{justify-content:center;align-items:center;text-align:center;
-  background:url(../img/title-bg.jpg) center/cover no-repeat}
+  background:url(../img/title-bg.jpg) center/cover no-repeat;background-attachment:scroll}
 #s-title::before{content:'';position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(18,13,32,.5),rgba(18,13,32,.92))}
 #s-title>*{position:relative;width:100%}
@@ -79,6 +83,10 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
 .mini{width:28px;height:28px;border-radius:50%;overflow:hidden;background:#3d2f66;
   display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
 .mini img{width:100%;height:100%;object-fit:cover}
+
+/* 지도 화면은 화면 높이에 고정 — 안쪽 #mapscroll 이 스크롤을 담당 */
+#s-map.on{height:var(--vh,100dvh);overflow:hidden}
+#s-battle.on{min-height:var(--vh,100dvh)}
 
 /* 지도 */
 #mapscroll{flex:1;overflow-y:auto;overflow-x:hidden;margin:9px -6px;border-radius:16px;
@@ -119,7 +127,9 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
   flex:none;min-height:20px;margin:0}
 
 /* 훈련소 */
-.trainer{width:66px;height:66px;object-fit:contain;font-size:42px;display:block;margin:4px auto 0}
+.trainer{width:52px;height:52px;object-fit:contain;font-size:34px;display:block;margin:2px auto 0}
+#s-train h2{font-size:19px}
+#s-train .sub{margin-top:3px;font-size:13px}
 .songbar{display:flex;align-items:center;gap:8px;background:rgba(86,224,200,.09);
   border:2px solid rgba(86,224,200,.3);border-radius:12px;padding:7px 10px;flex:none;margin-top:8px}
 .songbar span{flex:1;font-size:12px;color:var(--potion);font-family:'Gaegu',cursive}
@@ -129,7 +139,7 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
 audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 #tr-body{display:flex;flex-direction:column;flex:1;min-height:0}
 .card{background:rgba(0,0,0,.34);border:2px solid #34275c;border-radius:18px;
-  padding:12px 10px;margin:8px 0;overflow-y:auto}
+  padding:12px 10px;margin:8px 0}
 .eq{font-size:30px;text-align:center}
 .chant{text-align:center;font-family:'Gaegu',cursive;font-size:20px;color:var(--torch);margin-bottom:8px}
 @keyframes pop{from{opacity:0;transform:scale(.4)}}
@@ -140,6 +150,12 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 .tenframe.full{border-color:rgba(255,181,69,.55);background:rgba(255,181,69,.07)}
 .half{display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
 .cell{width:15px;height:15px;border-radius:50%;border:1px dashed rgba(255,255,255,.16)}
+/* 줄이 많아질수록 점을 작게 — 9x9(9줄)도 화면에 들어오도록 */
+.frame.r5 .cell{width:13px;height:13px}
+.frame.r7 .cell{width:11px;height:11px}
+.frame.r5 .tenframe{gap:7px;padding:3px 5px}
+.frame.r7 .tenframe{gap:5px;padding:2px 4px}
+.frame.r7 .rowtag{font-size:11px;min-width:28px}
 .cell.f{border:1px solid rgba(0,0,0,.35);animation:pop .22s backwards}
 .cell.g0{background:var(--torch)}
 .cell.g1{background:var(--potion)}
@@ -181,7 +197,7 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
   border:9px solid transparent;border-top-color:var(--parch)}
 .taunt{font-family:'Gaegu',cursive;font-size:14px;color:#6b5a8a}
 .qtext{font-size:38px}
-.mobwrap{text-align:center;margin:18px 0 2px;flex:none}
+.mobwrap{text-align:center;margin:14px 0 2px;flex:none}
 .mobart{width:126px;height:126px;object-fit:contain;font-size:80px;display:inline-flex;
   animation:idle 1.9s ease-in-out infinite;filter:drop-shadow(0 10px 14px rgba(0,0,0,.6))}
 .mobart img{width:100%;height:100%;object-fit:contain}
@@ -209,7 +225,7 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
   text-align:center;font-size:30px;color:var(--potion);min-height:50px;flex:none}
 .ansbox.empty{color:#3d5c66}
 .statusbar{display:flex;align-items:center;justify-content:space-between;gap:8px;
-  flex:none;margin:8px 0}
+  flex:none;margin:7px 0}
 .hearts{display:flex;gap:3px;font-size:19px}
 .potions{display:flex;gap:5px}
 .potionbtn{border:2px solid var(--potion);border-radius:11px;padding:5px 9px;
@@ -246,6 +262,21 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 .mistakes{font-family:'Gaegu',cursive;font-size:15px;color:var(--muted);
   text-align:center;line-height:1.7}
 .mistakes b{color:var(--blood)}
+
+.chcard{display:flex;align-items:center;gap:11px;background:rgba(0,0,0,.3);
+  border:2px solid #3d2f66;border-radius:14px;padding:9px 12px;margin-bottom:8px;cursor:pointer}
+.chcard:active{transform:scale(.98);border-color:var(--torch)}
+.chart{width:52px;height:52px;flex:none;display:flex;align-items:center;
+  justify-content:center;font-size:34px}
+.chart img{width:100%;height:100%;object-fit:contain}
+.chtxt{flex:1;min-width:0}
+.chtxt b{font-size:20px;color:var(--torch)}
+.chtxt small{display:block;font-size:13px}
+.chtxt em{display:block;font-style:normal;font-family:'Gaegu',cursive;
+  font-size:12px;color:var(--muted)}
+.rec{background:var(--potion);color:#06322b;font-size:11px;border-radius:8px;
+  padding:1px 7px;margin-left:7px;vertical-align:3px}
+.chgo{color:var(--torch);font-size:18px}
 
 /* 상점 */
 .scrollarea{flex:1;overflow-y:auto;margin:8px 0}
@@ -286,4 +317,27 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 .confetti{position:absolute;top:-20px;font-size:20px;animation:fall linear forwards;
   pointer-events:none;z-index:9}
 @keyframes fall{to{transform:translateY(105dvh) rotate(540deg);opacity:.2}}
+/* 작은 화면 대응 — 훈련소 10칸 프레임이 9줄까지 늘어나도 들어가도록 */
+@media (max-height:740px){
+  .cell{width:13px;height:13px}
+  .tenframe{gap:7px;padding:3px 5px}
+  .frame{gap:4px}
+  .eq{font-size:27px}
+  .chant{font-size:18px}
+  .starwrap svg{width:110px;height:110px}
+  .mobart{width:108px;height:108px;font-size:68px}
+  .mobwrap{margin:12px 0 2px}
+  .key{padding:11px 0;font-size:21px}
+}
+@media (max-height:640px){
+  .cell{width:11px;height:11px}
+  .tenframe{gap:6px}
+  .trainer{width:48px;height:48px}
+  .mobart{width:92px;height:92px;font-size:58px}
+  .qtext{font-size:32px}
+  .ansbox{font-size:26px;min-height:44px}
+  .key{padding:9px 0;font-size:19px}
+  .castle{width:100px;height:100px}
+  h1{font-size:28px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
