@@ -62,10 +62,17 @@ function drawHUD(){
     el.textContent=d.emoji+' '+d.name;
   });
 }
-function paintFace(el){
+/* which 를 주면 그 성별을 고정으로 그립니다 (선택 화면용).
+   생략하면 현재 고른 용사를 그립니다 (HUD·지도용).          */
+function paintFace(el, which){
   const s=Save.s;
-  if(s.player.photo) el.innerHTML=`<img src="${s.player.photo}" alt="">`;
-  else el.innerHTML=artHTML('face-'+s.player.hero+'.png', s.player.hero==='girl'?'👧':'👦','');
+  const hero = which || s.player.hero;
+  /* 사진은 그 사진을 넣은 용사 칸에만 적용 */
+  if(s.player.photo && s.player.photoHero===hero){
+    el.innerHTML=`<img src="${s.player.photo}" alt="">`;
+    return;
+  }
+  el.innerHTML=artHTML('face-'+hero+'.png', hero==='girl'?'👧':'👦','');
 }
 
 /* 토스트 알림 */

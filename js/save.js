@@ -8,8 +8,9 @@ const SAVE_VERSION = 1;
 function blankSave(){
   return {
     v: SAVE_VERSION,
-    player:   { name:'', hero:'girl', photo:null },
-    progress: { pos:0, cleared:[], trained:[], difficulty:'easy', started:false },
+    player:   { name:'', hero:'girl', photo:null, photoHero:null },
+    progress: { pos:0, order:[FIRST_TABLE], cleared:[], trained:[],
+                difficulty:'easy', started:false },
     wallet:   { gold:0 },
     potions:  { energy:0, time:0, hint:0 },
     items:    [],                 // 획득/구매한 아이템 id
@@ -64,6 +65,10 @@ function migrate(d){
     else if(base[k] && typeof base[k]==='object' && !Array.isArray(base[k])){
       d[k] = Object.assign({}, base[k], d[k]);
     }
+  }
+  /* 순서 자유화 이전에 저장된 기록은 2~9단 순서대로 진행 중이었습니다 */
+  if(!Array.isArray(d.progress.order) || !d.progress.order.length){
+    d.progress.order = [2,3,4,5,6,7,8,9];
   }
   d.v = SAVE_VERSION;
   return d;

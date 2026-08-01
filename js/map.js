@@ -29,10 +29,12 @@ const Map = {
 
   meta(n){
     if(n.type==='village')  return {f:'village.png',  e:'🏡', label:'출발'};
-    if(n.type==='train')    return {f:'camp.png',     e:'⛺', label:n.t+'단 훈련소'};
     if(n.type==='treasure') return {f:'treasure.png', e:'🎁', label:'보물'};
     if(n.type==='boss')     return {f:BOSS.f,         e:BOSS.e, label:'드래곤'};
-    const m=MONS.find(x=>x.t===n.t);
+    const t = tableAt(n.slot);
+    if(!t) return {f:'', e:'❔', label:'???'};          // 아직 안 고른 자리
+    if(n.type==='train') return {f:'camp.png', e:'⛺', label:t+'단 훈련소'};
+    const m=MONS.find(x=>x.t===t);
     return {f:m.f, e:m.e, label:m.name};
   },
 
@@ -66,7 +68,7 @@ const Map = {
 
   drawWalker(){
     const s=Save.s;
-    $('walker').innerHTML = s.player.photo
+    $('walker').innerHTML = (s.player.photo && s.player.photoHero===s.player.hero)
       ? `<img src="${s.player.photo}" style="border-radius:50%">`
       : artHTML('hero-'+s.player.hero+'.png', s.player.hero==='girl'?'🧝':'🧑','');
     const petEl=$('pet');
@@ -125,8 +127,8 @@ const Map = {
   },
 
   arrive(n){
-    if(n.type==='train')         setTimeout(()=>Train.enter(n.t),350);
-    else if(n.type==='battle')   setTimeout(()=>Battle.start(MONS.find(m=>m.t===n.t)),350);
+    if(n.type==='train')         setTimeout(()=>Train.enter(tableAt(n.slot)),350);
+    else if(n.type==='battle')   setTimeout(()=>Battle.start(MONS.find(m=>m.t===tableAt(n.slot))),350);
     else if(n.type==='boss')     setTimeout(()=>Battle.start(BOSS),350);
     else if(n.type==='treasure') setTimeout(()=>ending(),500);
   }

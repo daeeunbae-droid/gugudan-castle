@@ -53,12 +53,44 @@ const Shop = {
   }
 };
 
+/* ---------- 다음 단 고르기 ----------
+   길은 하나지만, 다음 자리에 누가 기다릴지는 아이가 정합니다.        */
+const Choose = {
+  open(){
+    const left = remainingTables();
+    $('ch-count').textContent = `${left.length}개 남음`;
+    let h='';
+    left.forEach((t,i)=>{
+      const m=MONS.find(x=>x.t===t), tip=TABLE_TIP[t];
+      const star = i===0 ? '<span class="rec">추천</span>' : '';
+      h+=`<div class="chcard" onclick="Choose.pick(${t})">
+            <div class="chart">${artHTML(m.f,m.e,'')}</div>
+            <div class="chtxt"><b>${t}단</b>${star}
+              <small>${m.name}</small>
+              <em>${tip.tip}</em></div>
+            <div class="chgo">▶</div>
+          </div>`;
+    });
+    $('ch-list').innerHTML=h;
+    show('s-choose');
+  },
+  pick(t){
+    Save.s.progress.order.push(t);
+    commit(true);
+    chime();
+    toast(`${t}단의 길이 열렸어요!`);
+    show('s-map');
+    setTimeout(()=>Map.walkTo(Save.s.progress.pos+1),600);
+  }
+};
+
 /* ---------- 시작 화면 ---------- */
 function pickHero(h){
   Save.s.player.hero=h;
   $('h-girl').classList.toggle('sel',h==='girl');
   $('h-boy').classList.toggle('sel',h==='boy');
-  paintFace($('face-girl')); paintFace($('face-boy'));
+  paintFace($('face-girl'),'girl');
+  paintFace($('face-boy'),'boy');
 }
 function loadPhoto(e){
   const f=e.target.files[0]; if(!f) return;
@@ -72,7 +104,10 @@ function loadPhoto(e){
       const side=Math.min(im.width,im.height);
       g.drawImage(im,(im.width-side)/2,(im.height-side)/2,side,side,0,0,256,256);
       Save.s.player.photo=c.toDataURL('image/jpeg',.82);
-      commit(); paintFace($('face-'+Save.s.player.hero));
+      Save.s.player.photoHero=Save.s.player.hero;   /* 사진 주인 기록 */
+      commit();
+      paintFace($('face-girl'),'girl');
+      paintFace($('face-boy'),'boy');
     };
     im.src=r.result;
   };
