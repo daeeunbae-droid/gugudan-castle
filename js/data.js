@@ -77,11 +77,38 @@ const PET = {
   expPerCorrect:1
 };
 
-/* ---------- 길 위의 지점 ---------- */
+/* ---------- 단을 고를 때 보여줄 힌트 (lv 낮을수록 쉬움 → 위에 표시) ---------- */
+const TABLE_TIP = {
+  2:{lv:1, tip:'가장 쉬워요 · 두 배씩'},
+  5:{lv:1, tip:'끝자리가 5, 0만 나와요'},
+  4:{lv:2, tip:'2단을 두 번 하면 4단'},
+  9:{lv:2, tip:'끝자리가 9,8,7… 거꾸로'},
+  3:{lv:3, tip:'조금 익숙해졌다면'},
+  6:{lv:3, tip:'3단의 두 배'},
+  8:{lv:4, tip:'4단의 두 배'},
+  7:{lv:5, tip:'제일 어려워요 · 도전!'}
+};
+
+/* ---------- 길 위의 지점 ----------
+   자리(slot)는 8칸 고정이고, 어떤 단이 들어갈지는 아이가 그때그때 고릅니다. */
+const SLOT_COUNT = 8;
+const FIRST_TABLE = 2;                    // 첫 자리는 2단 고정 (가장 쉬운 입구)
 const NODES = [{type:'village'}];
-MONS.forEach(m=>{ NODES.push({type:'train',t:m.t}); NODES.push({type:'battle',t:m.t}); });
+for(let i=0;i<SLOT_COUNT;i++){
+  NODES.push({type:'train', slot:i});
+  NODES.push({type:'battle', slot:i});
+}
 NODES.push({type:'boss'});
 NODES.push({type:'treasure'});
+
+/* 이 자리에 배정된 단. 아직 안 골랐으면 undefined */
+function tableAt(slot){ return Save.s.progress.order[slot]; }
+/* 아직 안 고른 단들 */
+function remainingTables(){
+  const done = Save.s.progress.order;
+  return MONS.map(m=>m.t).filter(t=>!done.includes(t))
+             .sort((a,b)=>TABLE_TIP[a].lv - TABLE_TIP[b].lv);
+}
 
 /* ---------- 한글 구구단 읽기 ---------- */
 const ONES=['','일','이','삼','사','오','육','칠','팔','구'];

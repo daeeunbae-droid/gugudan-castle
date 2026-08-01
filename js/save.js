@@ -9,8 +9,8 @@ function blankSave(){
   return {
     v: SAVE_VERSION,
     player:   { name:'', hero:'girl', photo:null, photoHero:null },
-    progress: { pos:0, order:[FIRST_TABLE], cleared:[], trained:[],
-                difficulty:'easy', started:false },
+    progress: { pos:0, order:[ (typeof FIRST_TABLE!=='undefined' ? FIRST_TABLE : 2) ],
+                cleared:[], trained:[], difficulty:'easy', started:false },
     wallet:   { gold:0 },
     potions:  { energy:0, time:0, hint:0 },
     items:    [],                 // 획득/구매한 아이템 id

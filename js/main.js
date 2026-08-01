@@ -200,25 +200,32 @@ function ending(){
 
 /* ---------- 시동 ---------- */
 window.addEventListener('DOMContentLoaded', async ()=>{
-  const hasSave = loadSave();
+  let hasSave=false;
+  try{ hasSave = loadSave(); }catch(e){ console.warn('저장 읽기 실패',e); }
 
-  /* 클라우드가 설정돼 있고 가족 코드가 있으면 더 새로운 쪽을 씁니다 */
-  await Sync.init();
-  if(Sync.ready && Save.s.familyCode){
-    const remote = await Sync.pull(Save.s.familyCode);
-    if(remote) Save.set(remote);
-  }
+  /* 클라우드는 선택 기능 — 없거나 실패해도 게임은 그대로 돌아갑니다 */
+  try{
+    if(typeof Sync!=='undefined'){
+      await Sync.init();
+      if(Sync.ready && Save.s.familyCode){
+        const remote = await Sync.pull(Save.s.familyCode);
+        if(remote) Save.set(remote);
+      }
+    }
+  }catch(e){ console.warn('클라우드 건너뜀',e); }
 
-  const s=Save.s;
-  if(hasSave || s.progress.started){
-    $('btn-continue').style.display='';
-    $('continue-info').textContent =
-      `${s.player.name||'용사'} · ${s.progress.cleared.length}단 클리어 · 🪙${s.wallet.gold}`;
-  }
-  pickHero(s.player.hero||'girl');
-  pickDiff(s.progress.difficulty||'easy');
-  $('pname').value=s.player.name||'';
-  drawHUD();
+  try{
+    const s=Save.s;
+    if(hasSave || s.progress.started){
+      $('btn-continue').style.display='';
+      $('continue-info').textContent =
+        `${s.player.name||'용사'} · ${s.progress.cleared.length}단 클리어 · 🪙${s.wallet.gold}`;
+    }
+    pickHero(s.player.hero||'girl');
+    pickDiff(s.progress.difficulty||'easy');
+    $('pname').value=s.player.name||'';
+    drawHUD();
+  }catch(e){ console.warn('초기 화면 그리기 일부 실패',e); }
 
   /* 키보드 입력 */
   document.addEventListener('keydown',e=>{
