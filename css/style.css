@@ -13,7 +13,7 @@ body{background:var(--void);color:var(--parch);overflow-x:hidden;
     repeating-linear-gradient(0deg,var(--stone) 0 38px,var(--stone2) 38px 40px),var(--void);
   background-attachment:fixed}
 .screen{display:none;min-height:var(--vh,100dvh);flex-direction:column;
-  padding:calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  padding:calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
   overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
 .screen.on{display:flex;animation:fade .3s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
@@ -86,6 +86,8 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
 
 /* 지도 화면은 화면 높이에 고정 — 안쪽 #mapscroll 이 스크롤을 담당 */
 #s-map.on{height:var(--vh,100dvh);overflow:hidden}
+/* 훈련소·퍼즐방: 화면에 고정하고 안쪽 내용만 스크롤 → 아래 버튼이 항상 제자리 */
+#s-train.on, #s-jail.on{height:var(--vh,100dvh);overflow:hidden}
 #s-battle.on{min-height:var(--vh,100dvh)}
 
 /* 지도 */
@@ -127,9 +129,11 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
   flex:none;min-height:20px;margin:0}
 
 /* 훈련소 */
-.trainer{width:52px;height:52px;object-fit:contain;font-size:34px;display:block;margin:2px auto 0}
-#s-train h2{font-size:19px}
-#s-train .sub{margin-top:3px;font-size:13px}
+.trainer{width:34px;height:34px;object-fit:contain;font-size:24px;
+  display:inline-block;vertical-align:-8px;margin-right:5px}
+#s-train h2{font-size:19px;margin:0}
+#s-train .sub{margin-top:2px;font-size:12px;line-height:1.35}
+#s-train .eyebrow{margin-bottom:2px}
 .songbar{display:flex;align-items:center;gap:8px;background:rgba(86,224,200,.09);
   border:2px solid rgba(86,224,200,.3);border-radius:12px;padding:7px 10px;flex:none;margin-top:8px}
 .songbar span{flex:1;font-size:12px;color:var(--potion);font-family:'Gaegu',cursive}
@@ -138,6 +142,15 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
 .songbtn.playing{background:var(--torch);color:#2b1a06}
 audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 #tr-body{display:flex;flex-direction:column;flex:1;min-height:0}
+#tr-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;padding-bottom:4px;
+  -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent);
+  mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent)}
+#tr-scroll::-webkit-scrollbar{width:0}
+/* 아래 버튼 묶음은 스크롤과 무관하게 항상 같은 자리 */
+#tr-foot{flex:none;display:flex;flex-direction:column;gap:8px;padding-top:8px;
+  border-top:1px solid rgba(255,255,255,.07)}
+#s-jail .jlscroll{flex:1;min-height:0;overflow-y:auto}
 .card{background:rgba(0,0,0,.34);border:2px solid #34275c;border-radius:18px;
   padding:12px 10px;margin:8px 0}
 .eq{font-size:30px;text-align:center}
@@ -243,7 +256,8 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 /* 퍼즐방 */
 .jlmon{text-align:center;font-size:52px}
 .jlmon img{width:70px;height:70px;object-fit:contain}
-#s-jail .card{flex:0 1 auto}
+#s-jail .card{flex:0 1 auto;overflow-y:auto;min-height:0}
+#s-jail .pad{margin-top:auto}
 
 /* 결과 */
 .bigart{width:120px;height:120px;object-fit:contain;font-size:76px;display:flex;margin:0 auto}

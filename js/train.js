@@ -69,6 +69,7 @@ const Train = {
     for(let i=1;i<=9;i++) dots+=`<div class="pd${i<=b?' on':''}"></div>`;
     $('tr-dots').innerHTML=dots;
     $('tr-next').textContent = b===9 ? '훈련 완료 — 포션 고르기' : '다음';
+    const sc=$('tr-scroll'); if(sc) sc.scrollTop=0;
     beep(500+b*35,.08,'triangle',.04);
   },
 
