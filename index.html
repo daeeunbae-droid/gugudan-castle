@@ -12,7 +12,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=13">
+<script>
+/* 이미지 로드 실패 시 이모지로 대체. core.js 보다 먼저 필요하므로 여기 둡니다. */
+function artFail(img,emoji){
+  var s=document.createElement('span');
+  s.className=(img.className?img.className+' ':'')+'emoji';
+  s.style.cssText=img.style.cssText;
+  s.textContent=emoji;
+  if(img.parentNode) img.parentNode.replaceChild(s,img);
+}
+</script>
 </head>
 <body>
 <div id="app">
@@ -35,9 +45,9 @@
   <p class="eyebrow">용사를 고르세요</p>
   <div class="heroes">
     <div class="hero sel" id="h-girl" onclick="pickHero('girl')">
-      <div class="face" id="face-girl"></div><b>여자 용사</b></div>
+      <div class="face" id="face-girl"><img src="img/face-girl.png" alt="" onerror="artFail(this,'👧')"></div><b>여자 용사</b></div>
     <div class="hero" id="h-boy" onclick="pickHero('boy')">
-      <div class="face" id="face-boy"></div><b>남자 용사</b></div>
+      <div class="face" id="face-boy"><img src="img/face-boy.png" alt="" onerror="artFail(this,'👦')"></div><b>남자 용사</b></div>
   </div>
   <label class="filelabel" for="photo">📷 얼굴 사진 넣기</label>
   <input type="file" id="photo" accept="image/*" onchange="loadPhoto(event)">
@@ -63,7 +73,7 @@
 <!-- ============ 지도 ============ -->
 <section id="s-map" class="screen">
   <div class="hud">
-    <div class="who"><div class="mini hud-face"></div><span class="hud-name"></span></div>
+    <div class="who"><div class="mini hud-face"><img src="img/face-girl.png" alt="" onerror="artFail(this,'🙂')"></div><span class="hud-name"></span></div>
     <div class="hudright">
       <span class="hud-diff pill"></span>
       <span class="hud-gold pill"></span>
@@ -170,10 +180,18 @@
   <button class="btn" id="rs-btn">계속</button>
 </section>
 
+<!-- ============ 다음 단 고르기 ============ -->
+<section id="s-choose" class="screen">
+  <p class="eyebrow">갈림길</p>
+  <h2>다음은 어느 길로?</h2>
+  <p class="sub">먼저 외우고 싶은 단을 고르세요 · <span id="ch-count"></span></p>
+  <div id="ch-list" class="scrollarea"></div>
+</section>
+
 <!-- ============ 가방 · 상점 ============ -->
 <section id="s-shop" class="screen">
   <div class="hud">
-    <div class="who"><div class="mini hud-face"></div><span class="hud-name"></span></div>
+    <div class="who"><div class="mini hud-face"><img src="img/face-girl.png" alt="" onerror="artFail(this,'🙂')"></div><span class="hud-name"></span></div>
     <div class="hudright"><span class="hud-gold pill"></span></div>
   </div>
   <p class="eyebrow">가방 · 상점</p>
@@ -226,14 +244,14 @@
 
 </div>
 
-<script src="js/data.js"></script>
-<script src="js/sync.js"></script>
-<script src="js/save.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/core.js"></script>
-<script src="js/map.js"></script>
-<script src="js/train.js"></script>
-<script src="js/battle.js"></script>
-<script src="js/main.js"></script>
+<script src="js/data.js?v=13"></script>
+<script src="js/sync.js?v=13"></script>
+<script src="js/save.js?v=13"></script>
+<script src="js/audio.js?v=13"></script>
+<script src="js/core.js?v=13"></script>
+<script src="js/map.js?v=13"></script>
+<script src="js/train.js?v=13"></script>
+<script src="js/battle.js?v=13"></script>
+<script src="js/main.js?v=13"></script>
 </body>
 </html>
