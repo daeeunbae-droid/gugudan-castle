@@ -19,14 +19,8 @@ if(window.visualViewport){
   window.visualViewport.addEventListener('resize', fixVH);
 }
 
-/* 이미지가 없으면 이모지로 대체 */
-function artFail(img,emoji){
-  const s=document.createElement('span');
-  s.className=(img.className?img.className+' ':'')+'emoji';
-  s.style.cssText=img.style.cssText;
-  s.textContent=emoji;
-  img.replaceWith(s);
-}
+/* artFail 은 index.html <head> 에 인라인으로 정의돼 있습니다.
+   (스크립트 로드보다 이미지 onerror 가 먼저 터질 수 있어서)          */
 function artHTML(file,emoji,cls){
   if(!file) return `<span class="${cls||''} emoji">${emoji}</span>`;
   return `<img class="${cls||''}" src="img/${file}" alt="" onerror="artFail(this,'${emoji}')">`;
