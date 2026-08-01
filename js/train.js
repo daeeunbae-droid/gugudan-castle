@@ -37,6 +37,11 @@ const Train = {
     }
     return h;
   },
+  /* 줄 수에 따라 점 크기를 줄이는 클래스 */
+  sizeClass(total){
+    const rows=Math.ceil(total/10);
+    return rows>=7 ? 'r7' : (rows>=5 ? 'r5' : '');
+  },
 
   decompHTML(total){
     const t=Math.floor(total/10), o=total%10;
@@ -49,7 +54,9 @@ const Train = {
     const a=this.table, b=this.idx, total=a*b;
     $('tr-eq').textContent=`${a} × ${b} = ${total}`;
     $('tr-chant').textContent=chant(a,b);
-    $('tr-frame').innerHTML=this.frameHTML(a,total);
+    const F=$('tr-frame');
+    F.className='frame '+this.sizeClass(total);
+    F.innerHTML=this.frameHTML(a,total);
     $('tr-decomp').innerHTML=this.decompHTML(total);
 
     let ones='';

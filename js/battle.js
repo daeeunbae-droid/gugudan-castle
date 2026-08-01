@@ -135,7 +135,8 @@ const Battle = {
     }
     if(kind==='hint'){
       B.hint=true;
-      $('hintbox').innerHTML=Train.frameHTML(B.q.a, B.q.ans)
+      $('hintbox').innerHTML=`<div class="frame ${Train.sizeClass(B.q.ans)}">`
+        + Train.frameHTML(B.q.a, B.q.ans) + `</div>`
         + `<div class="hintnote">${B.q.a}씩 ${B.q.b}묶음</div>`;
     }
     Save.potion(kind,-1); glug(); this.render();
@@ -203,8 +204,15 @@ const Battle = {
       $('rs-correct').textContent=B.correct;
       $('rs-wrong').textContent=B.wrong;
       $('rs-hearts').textContent=B.hearts;
-      $('rs-btn').textContent = boss ? '보물 상자로' : '다음 길로';
-      $('rs-btn').onclick=()=>{ show('s-map'); setTimeout(()=>Map.walkTo(Save.s.progress.pos+1),400); };
+      /* 다음 자리에 어떤 단이 들어갈지 아직 안 골랐다면 고르러 보냅니다 */
+      const node = NODES[Save.s.progress.pos];
+      const slot = node && typeof node.slot==='number' ? node.slot : -1;
+      const needPick = slot>=0 && slot+1 < SLOT_COUNT
+                       && Save.s.progress.order.length === slot+1;
+      $('rs-btn').textContent = boss ? '보물 상자로' : (needPick ? '다음 길 고르기' : '다음 길로');
+      $('rs-btn').onclick = needPick
+        ? ()=>Choose.open()
+        : ()=>{ show('s-map'); setTimeout(()=>Map.walkTo(Save.s.progress.pos+1),400); };
       show('s-result'); confetti();
     },800);
   },
@@ -243,7 +251,9 @@ const Jail = {
     $('jl-count').textContent=`${this.i+1} / ${this.list.length}`;
     $('jl-eq').textContent=`${f.a} × ${f.b} = ?`;
     $('jl-chant').textContent=chant(f.a,f.b);
-    $('jl-frame').innerHTML=Train.frameHTML(f.a, f.a*f.b);
+    const JF=$('jl-frame');
+    JF.className='frame '+Train.sizeClass(f.a*f.b);
+    JF.innerHTML=Train.frameHTML(f.a, f.a*f.b);
     $('jl-decomp').innerHTML=Train.decompHTML(f.a*f.b);
     $('jl-ans').textContent='?'; $('jl-ans').classList.add('empty');
     $('jl-fb').textContent='';

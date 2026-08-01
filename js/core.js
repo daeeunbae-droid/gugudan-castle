@@ -3,6 +3,22 @@
 ========================================================= */
 function $(id){ return document.getElementById(id); }
 
+/* =========================================================
+   실제 보이는 화면 높이를 --vh 에 넣습니다.
+   폰에서 주소창이 접히고 펼쳐질 때 100dvh 가 어긋나 아래가
+   잘리는 문제를 막습니다. iOS 사파리는 dvh 계산이 특히 자주 틀립니다.
+========================================================= */
+function fixVH(){
+  const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  document.documentElement.style.setProperty('--vh', h+'px');
+}
+fixVH();
+window.addEventListener('resize', fixVH);
+window.addEventListener('orientationchange', ()=>setTimeout(fixVH,250));
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', fixVH);
+}
+
 /* 이미지가 없으면 이모지로 대체 */
 function artFail(img,emoji){
   const s=document.createElement('span');
@@ -12,6 +28,7 @@ function artFail(img,emoji){
   img.replaceWith(s);
 }
 function artHTML(file,emoji,cls){
+  if(!file) return `<span class="${cls||''} emoji">${emoji}</span>`;
   return `<img class="${cls||''}" src="img/${file}" alt="" onerror="artFail(this,'${emoji}')">`;
 }
 
@@ -19,7 +36,10 @@ function artHTML(file,emoji,cls){
 let curScreen='s-title';
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
-  $(id).classList.add('on');
+  const el=$(id);
+  el.classList.add('on');
+  el.scrollTop=0;
+  window.scrollTo(0,0);
   curScreen=id;
   if(id!=='s-train') Tune.stop();
   if(id!=='s-battle' && id!=='s-jail') Voice.stop();
