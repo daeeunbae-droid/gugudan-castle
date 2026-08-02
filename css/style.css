@@ -104,10 +104,10 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
 .mapwrap svg{position:absolute;inset:0;width:100%;height:100%}
 .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;
   align-items:center;gap:2px}
-.node .art{width:46px;height:46px;object-fit:contain;font-size:30px;
-  filter:drop-shadow(0 4px 6px rgba(0,0,0,.7))}
-.node .lbl{font-family:'Gaegu',cursive;font-size:12px;background:rgba(10,7,20,.75);
-  padding:1px 7px;border-radius:8px;white-space:nowrap}
+.node .art{width:60px;height:60px;object-fit:contain;font-size:38px;
+  filter:drop-shadow(0 5px 7px rgba(0,0,0,.7))}
+.node .lbl{font-family:'Gaegu',cursive;font-size:13px;background:rgba(10,7,20,.75);
+  padding:2px 8px;border-radius:8px;white-space:nowrap}
 .node.locked{opacity:.42}
 .node.locked .art{filter:grayscale(1) brightness(.7)}
 .node.here{cursor:pointer;animation:bob 1.5s ease-in-out infinite}
@@ -119,13 +119,13 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
 .node.replay{cursor:pointer}
 .node.replay .art{opacity:.85;filter:drop-shadow(0 0 6px rgba(86,224,200,.7))}
 .node.replay .lbl{opacity:.9;background:rgba(86,224,200,.25)}
-#walker{position:absolute;transform:translate(-50%,-82%);width:52px;height:52px;z-index:6;
-  filter:drop-shadow(0 5px 7px rgba(0,0,0,.7))}
+#walker{position:absolute;transform:translate(-50%,-82%);width:76px;height:76px;z-index:6;
+  filter:drop-shadow(0 6px 9px rgba(0,0,0,.7))}
 #walker img{width:100%;height:100%;object-fit:contain}
 #walker.step{animation:step .32s infinite}
 @keyframes step{50%{transform:translate(-50%,-90%) rotate(4deg)}}
-#pet{position:absolute;transform:translate(-50%,-70%);width:34px;height:34px;z-index:5;
-  display:none;filter:drop-shadow(0 4px 5px rgba(0,0,0,.6))}
+#pet{position:absolute;transform:translate(-50%,-70%);width:50px;height:50px;z-index:5;
+  display:none;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
 #pet img{width:100%;height:100%;object-fit:contain}
 .tap-hint{text-align:center;font-family:'Gaegu',cursive;font-size:14px;color:var(--torch);
   flex:none;min-height:20px;margin:0}

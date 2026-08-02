@@ -5,9 +5,10 @@ const VB={w:360,h:1620};
 
 const Map = {
   road:null, len:0, pos:[], walking:false,
+  petGap:60,   /* 캐릭터·펫 그림이 커진 만큼 펫이 뒤에서 따라오는 간격도 넉넉하게 */
 
   build(){
-    const N=10, bot=1550, top=70, cx=180, amp=105, pts=[];
+    const N=10, bot=1550, top=70, cx=180, amp=125, pts=[];
     for(let i=0;i<=N;i++){
       const y=bot-(bot-top)*i/N, side=(i%2===0?-1:1), k=(i===0||i===N)?.2:1;
       pts.push({x:cx+amp*side*k, y});
@@ -97,7 +98,7 @@ const Map = {
   place(p){
     $('walker').style.left=(p.x/VB.w*100)+'%';
     $('walker').style.top =(p.y/VB.h*100)+'%';
-    const petL=Math.max(0,(this.pos[Save.run().pos]||p).L-46);
+    const petL=Math.max(0,(this.pos[Save.run().pos]||p).L-this.petGap);
     const q=this.road.getPointAtLength(petL);
     $('pet').style.left=(q.x/VB.w*100)+'%';
     $('pet').style.top =(q.y/VB.h*100)+'%';
@@ -124,7 +125,7 @@ const Map = {
       const p=this.road.getPointAtLength(L);
       $('walker').style.left=(p.x/VB.w*100)+'%';
       $('walker').style.top =(p.y/VB.h*100)+'%';
-      const q=this.road.getPointAtLength(Math.max(0,L-46));
+      const q=this.road.getPointAtLength(Math.max(0,L-this.petGap));
       $('pet').style.left=(q.x/VB.w*100)+'%';
       $('pet').style.top =(q.y/VB.h*100)+'%';
       sc.scrollTop=Math.max(0,p.y/VB.h*wrap.offsetHeight - sc.clientHeight*.62);
