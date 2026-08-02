@@ -218,17 +218,21 @@ const Fork = {
     return {txt:'아직 안 해봤어요', warn:false};
   },
 
+  /* "사다리식" 노출 — 방금 클리어한 난이도와 그 바로 위 난이도만(최대 2개).
+     도전 모드 3판(g248→g356→g789)은 이미 이 화면에 오기 전에 다 마친 뒤이므로
+     여기엔 순수하게 난이도 선택지만 남습니다. */
   open(){
-    let h=`<div class="cgcard" onclick="Fork.challenge()">
-             <div class="cge">🏆</div>
-             <div class="cgtxt"><b>도전 모드로</b>
-               <em>20문제를 풀고 골드를 벌어요</em></div>
-             <div class="chgo">▶</div>
-           </div>`;
-    Object.values(DIFF).forEach(d=>{
-      const st=this.state(d.id);
-      const now = Save.s.progress.difficulty===d.id ? ' · 지금 여기' : '';
-      h+=`<div class="cgcard" onclick="Fork.restart('${d.id}')">
+    const TIERS=['easy','normal','hard'];
+    const justCleared = Save.s.progress.difficulty;
+    let idx = TIERS.indexOf(justCleared);
+    if(idx<0) idx=0;
+    const show_tiers = TIERS.slice(idx, idx+2);
+    let h='';
+    show_tiers.forEach(id=>{
+      const d=DIFF[id]; if(!d) return;
+      const st=this.state(id);
+      const now = Save.s.progress.difficulty===id ? ' · 지금 여기' : '';
+      h+=`<div class="cgcard" onclick="Fork.restart('${id}')">
             <div class="cge">${d.emoji}</div>
             <div class="cgtxt"><b>${d.name} 모드 처음부터</b>
               <em>${d.desc}<br>${st.txt}${now}</em></div>
@@ -238,8 +242,6 @@ const Fork = {
     $('fk-list').innerHTML=h;
     show('s-fork');
   },
-
-  challenge(){ show('s-challenge'); },
 
   /* 고른 난이도만 처음 상태로 되돌리고 그 지도로 옮겨 갑니다 */
   restart(tier){

@@ -100,7 +100,8 @@ const Battle = {
       $('fb').textContent='명중!';
       const m=$('mobart'); m.classList.add('hit');
       setTimeout(()=>m.classList.remove('hit'),320);
-      ding(); Voice.play('ans',B.q.a,B.q.b);
+      ding();   /* 정답을 소리로 읽어주지 않습니다 — 기기 TTS 목소리가 어색해서 뺐습니다.
+                   문제를 읽어주는 몬스터 목소리(Voice.play('ask',...))는 그대로 둡니다. */
       this.render();
       setTimeout(()=>{ B.locked=false; this.nextQ(); },700);
     }else{

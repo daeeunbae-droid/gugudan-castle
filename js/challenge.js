@@ -28,6 +28,26 @@ const Challenge = {
      세 난이도 중 하나라도 드래곤을 잡았으면 열립니다.            */
   unlocked(){ return Save.anyCleared('boss'); },
 
+  /* ---------- 보물칸 도달 시 강제 순차 진행 (2026-08-02) ----------
+     g248 → g356 → g789 세 판을 스킵·이탈 없이 순서대로 다 마쳐야
+     갈림길(Fork)로 넘어갑니다. seq: 지금 몇 번째 판인지(0~2),
+     시퀀스 밖(진입 전/완료 후)에는 -1. */
+  SEQUENCE: ['g248','g356','g789'],
+  seq: -1,
+
+  startSequence(){
+    this.seq = 0;
+    this.start(this.SEQUENCE[this.seq]);
+  },
+  nextInSequence(){
+    this.seq++;
+    this.start(this.SEQUENCE[this.seq]);
+  },
+  finishSequence(){
+    this.seq = -1;
+    Fork.open();
+  },
+
   /* ---------- 모드 고르기 ---------- */
   render(){
     let h='';
@@ -165,5 +185,18 @@ const Challenge = {
     $('cd-gold').textContent=gold;
     show('s-cdone');
     grantGold(gold);              /* 골드 지급 + 토스트 + 효과음 */
+    this.updateDoneButtons();
+  },
+
+  /* s-cdone 화면 버튼 — 강제 3연속 진행 중에는 "지도로" 같은 이탈 버튼을
+     두지 않고, 다음 판으로 자동 연결(한 번 탭)합니다. 마지막 판을 마치면
+     갈림길로 넘어갑니다. */
+  updateDoneButtons(){
+    const box=$('cd-actions'); if(!box) return;
+    if(this.seq>=0 && this.seq<this.SEQUENCE.length-1){
+      box.innerHTML=`<button class="btn" onclick="Challenge.nextInSequence()">다음 도전으로! (${this.seq+2}/3)</button>`;
+    }else{
+      box.innerHTML=`<button class="btn" onclick="Challenge.finishSequence()">다음 길 고르기</button>`;
+    }
   }
 };

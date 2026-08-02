@@ -57,7 +57,7 @@ const Map = {
       /* 보물을 연 뒤에는 뒤로 걸어갈 수 없습니다.
          대신 보물 상자를 누르면 갈림길(다음에 뭘 할지)로 갑니다. */
       if(done){
-        if(n.type==='treasure'){ d.onclick=()=>Fork.open(); d.classList.add('replay'); }
+        if(n.type==='treasure'){ d.onclick=()=>Challenge.startSequence(); d.classList.add('replay'); }
         box.appendChild(d); return;
       }
       const replayable = i<P.pos && (n.type==='battle'||n.type==='boss');
@@ -76,8 +76,6 @@ const Map = {
         ? (nxt.type==='train' ? '훈련소로 이동하세요'
           : nxt.type==='treasure' ? '보물 상자를 여세요' : '몬스터에게 도전하세요')
         : '');
-    /* 도전 모드는 드래곤을 잡은 뒤에만 보입니다 */
-    $('btn-challenge').style.display = Challenge.unlocked() ? '' : 'none';
     this.scroll();
   },
 
