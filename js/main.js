@@ -218,23 +218,26 @@ const Fork = {
     return {txt:'아직 안 해봤어요', warn:false};
   },
 
-  /* "사다리식" 노출 — 방금 클리어한 난이도와 그 바로 위 난이도만(최대 2개).
-     도전 모드 3판(g248→g356→g789)은 이미 이 화면에 오기 전에 다 마친 뒤이므로
-     여기엔 순수하게 난이도 선택지만 남습니다. */
+  /* 세 난이도를 항상 다 보여 줍니다.
+     한 단계 위만 열어 주면 레전드를 깬 뒤에는 고를 것이 레전드밖에 남지
+     않고, 쉬운 지도를 다시 걷고 싶을 때 돌아갈 길이 없어집니다.
+     대신 방금 깬 난이도의 바로 윗 단계에 '추천'을 붙여 다음 단계를
+     가리키기만 합니다 — 막지는 않습니다.
+     도전 모드 3판(g248→g356→g789)은 이 화면에 오기 전에 이미 다 마친
+     뒤이므로 여기엔 난이도 선택지만 남습니다.                        */
   open(){
     const TIERS=['easy','normal','hard'];
-    const justCleared = Save.s.progress.difficulty;
-    let idx = TIERS.indexOf(justCleared);
-    if(idx<0) idx=0;
-    const show_tiers = TIERS.slice(idx, idx+2);
+    const here = Save.s.progress.difficulty;
+    const next = TIERS[TIERS.indexOf(here)+1];   /* 없으면(레전드였으면) undefined */
     let h='';
-    show_tiers.forEach(id=>{
+    TIERS.forEach(id=>{
       const d=DIFF[id]; if(!d) return;
       const st=this.state(id);
-      const now = Save.s.progress.difficulty===id ? ' · 지금 여기' : '';
+      const now = here===id ? ' · 지금 여기' : '';
+      const rec = (id===next) ? '<span class="rec">추천</span>' : '';
       h+=`<div class="cgcard" onclick="Fork.restart('${id}')">
             <div class="cge">${d.emoji}</div>
-            <div class="cgtxt"><b>${d.name} 모드 처음부터</b>
+            <div class="cgtxt"><b>${d.name} 모드 처음부터</b>${rec}
               <em>${d.desc}<br>${st.txt}${now}</em></div>
             <div class="chgo">▶</div>
           </div>`;
