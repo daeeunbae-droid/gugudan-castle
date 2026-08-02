@@ -206,6 +206,56 @@ const Choose = {
   }
 };
 
+/* ---------- 보물 이후 갈림길 ----------
+   성을 한 번 깬 뒤 무엇을 할지 고릅니다. 난이도별로 지도가 따로
+   있으므로, 다른 난이도를 골라도 지금까지의 기록은 남아 있습니다.   */
+const Fork = {
+  /* 그 난이도가 지금 어떤 상태인지 한 줄로 */
+  state(tier){
+    const r=Save.run(tier);
+    if(r.cleared.includes('boss')) return {txt:'깬 적 있음 · 처음부터 다시', warn:false};
+    if(r.started || r.pos>0)       return {txt:`${r.cleared.length}단까지 가는 중 · 처음부터 다시`, warn:true};
+    return {txt:'아직 안 해봤어요', warn:false};
+  },
+
+  open(){
+    let h=`<div class="cgcard" onclick="Fork.challenge()">
+             <div class="cge">🏆</div>
+             <div class="cgtxt"><b>도전 모드로</b>
+               <em>20문제를 풀고 골드를 벌어요</em></div>
+             <div class="chgo">▶</div>
+           </div>`;
+    Object.values(DIFF).forEach(d=>{
+      const st=this.state(d.id);
+      const now = Save.s.progress.difficulty===d.id ? ' · 지금 여기' : '';
+      h+=`<div class="cgcard" onclick="Fork.restart('${d.id}')">
+            <div class="cge">${d.emoji}</div>
+            <div class="cgtxt"><b>${d.name} 모드 처음부터</b>
+              <em>${d.desc}<br>${st.txt}${now}</em></div>
+            <div class="chgo">▶</div>
+          </div>`;
+    });
+    $('fk-list').innerHTML=h;
+    show('s-fork');
+  },
+
+  challenge(){ show('s-challenge'); },
+
+  /* 고른 난이도만 처음 상태로 되돌리고 그 지도로 옮겨 갑니다 */
+  restart(tier){
+    const d=DIFF[tier]; if(!d) return;
+    const st=this.state(tier);
+    /* 아직 깨는 중인 기록을 지우게 되는 경우에만 한 번 물어봅니다 */
+    if(st.warn && !confirm(`${d.name} 모드는 지금 진행 중이에요.\n처음부터 다시 시작하면 그 지도는 마을부터 다시 걷게 됩니다.\n계속할까요?`)) return;
+    Save.resetRun(tier);
+    Save.s.progress.difficulty=tier;
+    commit(true);
+    chime(); toast(`${d.emoji} ${d.name} 모드 시작!`);
+    Map.build();
+    show('s-map');
+  }
+};
+
 /* ---------- 시작 화면 ---------- */
 function pickHero(h){
   Save.s.player.hero=h;

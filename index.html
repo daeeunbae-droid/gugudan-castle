@@ -279,6 +279,17 @@ function artFail(img,emoji){
   <button class="btn ghost danger" onclick="hardReset()">처음부터 다시 시작</button>
 </section>
 
+<!-- ============ 보물 이후 갈림길 — 다음에 무엇을 할까 ============ -->
+<section id="s-fork" class="screen">
+  <p class="eyebrow">보물을 열었다</p>
+  <h2>다음은 무엇을 할까?</h2>
+  <p class="sub">난이도마다 지도가 따로 있어요 · 골드와 펫은 그대로예요</p>
+  <div id="fk-list" class="scrollarea"></div>
+  <div id="fk-foot">
+    <button class="btn ghost" onclick="show('s-map')">지도로</button>
+  </div>
+</section>
+
 <!-- ============ 엔딩 ============ -->
 <section id="s-ending" class="screen" style="justify-content:center;text-align:center">
   <img class="bigart" src="img/treasure-open.png" alt="" onerror="artFail(this,'💎')">
@@ -292,22 +303,22 @@ function artFail(img,emoji){
   </div>
   <p class="mistakes" id="ed-weak"></p>
   <div style="height:14px"></div>
-  <button class="btn" onclick="show('s-shop')">상점에서 쓰기</button>
+  <button class="btn" onclick="Fork.open()">다음 길 고르기</button>
   <div style="height:9px"></div>
-  <button class="btn ghost" onclick="show('s-map')">지도로</button>
+  <button class="btn ghost" onclick="show('s-shop')">상점에서 쓰기</button>
 </section>
 
 </div>
 
-<script src="js/data.js?v=17"></script>
-<script src="js/sync.js?v=17"></script>
-<script src="js/save.js?v=17"></script>
-<script src="js/audio.js?v=17"></script>
-<script src="js/core.js?v=17"></script>
-<script src="js/map.js?v=17"></script>
-<script src="js/train.js?v=17"></script>
-<script src="js/battle.js?v=17"></script>
-<script src="js/challenge.js?v=17"></script>
-<script src="js/main.js?v=17"></script>
+<script src="js/data.js?v=18"></script>
+<script src="js/sync.js?v=18"></script>
+<script src="js/save.js?v=18"></script>
+<script src="js/audio.js?v=18"></script>
+<script src="js/core.js?v=18"></script>
+<script src="js/map.js?v=18"></script>
+<script src="js/train.js?v=18"></script>
+<script src="js/battle.js?v=18"></script>
+<script src="js/challenge.js?v=18"></script>
+<script src="js/main.js?v=18"></script>
 </body>
 </html>

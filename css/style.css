@@ -342,10 +342,11 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 .cqbar{height:8px;background:rgba(0,0,0,.4);border-radius:5px;overflow:hidden;margin:18px 0 0}
 .cqbar i{display:block;height:100%;background:var(--torch);transition:width .25s ease}
 /* 갈림길도 마찬가지 — 머리말은 고정, 단 목록만 스크롤 */
-#s-choose.on{height:var(--vh,100dvh);overflow:hidden}
-#ch-list{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent);
+#s-choose.on,#s-fork.on{height:var(--vh,100dvh);overflow:hidden}
+#ch-list,#fk-list{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent);
   mask-image:linear-gradient(180deg,#000 calc(100% - 18px),transparent)}
-#ch-list::-webkit-scrollbar{width:0}
+#ch-list::-webkit-scrollbar,#fk-list::-webkit-scrollbar{width:0}
+#fk-foot{flex:none;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
 /* 가방 화면의 두 탭 — 난이도 카드와 같은 방식으로 고른 쪽에 sel */
 .shoptabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
 .stab{background:rgba(0,0,0,.3);border:2px solid #3d2f66;border-radius:12px;
