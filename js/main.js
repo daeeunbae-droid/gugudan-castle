@@ -186,7 +186,7 @@ const Choose = {
       const m=MONS.find(x=>x.t===t), tip=TABLE_TIP[t];
       const star = i===0 ? '<span class="rec">추천</span>' : '';
       h+=`<div class="chcard" onclick="Choose.pick(${t})">
-            <div class="chart">${artHTML(m.f,m.e,'')}</div>
+            <div class="chart">${artHTML(monsterArt(m),m.e,'')}</div>
             <div class="chtxt"><b>${t}단</b>${star}
               <small>${m.name}</small>
               <em>${tip.tip}</em></div>

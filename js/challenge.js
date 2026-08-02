@@ -94,7 +94,7 @@ const Challenge = {
     const art=this.mobArt();
     if(!mon){ art.innerHTML=''; $('cq-mobname').textContent=''; return ''; }
     art.className='mobart';                 /* 남아 있는 hit 클래스 정리 */
-    art.innerHTML=artHTML(mon.f,mon.e,'');
+    art.innerHTML=artHTML(monsterArt(mon),mon.e,'');
     $('cq-mobname').textContent=mon.name;
     return mon.taunt[Math.floor(Math.random()*mon.taunt.length)];
   },

@@ -20,7 +20,7 @@ const Battle = {
       bonus:0, hint:false
     };
     $('mobart').className='mobart';
-    $('mobart').innerHTML=artHTML(mon.f,mon.e,'');
+    $('mobart').innerHTML=artHTML(monsterArt(mon),mon.e,'');
     $('mobname').textContent=mon.name;
     $('bt-diff').textContent=d.emoji+' '+d.name+(isRetry?' · 재대결':'');
     this.buildPad();
@@ -237,7 +237,7 @@ const Jail = {
 
   enter(mon,list){
     this.mon=mon; this.list=list; this.i=0; this.buf=''; this.locked=false;
-    $('jl-mon').innerHTML=artHTML(mon.f,mon.e,'');
+    $('jl-mon').innerHTML=artHTML(monsterArt(mon),mon.e,'');
     $('jl-title').textContent=mon.name+'의 퍼즐방';
     let h='';
     ['1','2','3','4','5','6','7','8','9','⌫','0','확인'].forEach(k=>{

@@ -30,12 +30,12 @@ const Map = {
   meta(n){
     if(n.type==='village')  return {f:'village.png',  e:'🏡', label:'출발'};
     if(n.type==='treasure') return {f:'treasure.png', e:'🎁', label:'보물'};
-    if(n.type==='boss')     return {f:BOSS.f,         e:BOSS.e, label:'드래곤'};
+    if(n.type==='boss')     return {f:monsterArt(BOSS), e:BOSS.e, label:'드래곤'};
     const t = tableAt(n.slot);
     if(!t) return {f:'', e:'❔', label:'???'};          // 아직 안 고른 자리
     if(n.type==='train') return {f:'camp.png', e:'⛺', label:t+'단 훈련소'};
     const m=MONS.find(x=>x.t===t);
-    return {f:m.f, e:m.e, label:m.name};
+    return {f:monsterArt(m), e:m.e, label:m.name};
   },
 
   /* 보물(마지막 지점)까지 갔으면 이 난이도의 모험은 끝난 것입니다 */

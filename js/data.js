@@ -4,27 +4,40 @@
 
 /* ---------- 난이도 ---------- */
 const DIFF = {
-  easy:   { id:'easy',   name:'연습',   emoji:'🌱', time:0,  hearts:3, gold:1.0,
+  easy:   { id:'easy',   name:'용사',   emoji:'🌱', time:0,  hearts:3, gold:1.0,
             desc:'시간 제한 없음 · 천천히 생각해도 돼요' },
-  normal: { id:'normal', name:'모험',   emoji:'⚔️', time:8,  hearts:3, gold:1.5,
-            desc:'문제당 8초 · 골드를 더 많이 받아요' },
-  hard:   { id:'hard',   name:'챔피언', emoji:'👑', time:5,  hearts:3, gold:2.2,
-            desc:'문제당 5초 · 단이 섞여 나와요' }
+  normal: { id:'normal', name:'마스터', emoji:'⚔️', time:8,  hearts:3, gold:1.5,
+            desc:'문제당 8초 · 골드 1.5배 · 몬스터가 강해져요' },
+  hard:   { id:'hard',   name:'레전드', emoji:'👑', time:5,  hearts:3, gold:2.2,
+            desc:'문제당 5초 · 골드 2.2배 · 단이 섞여 나와요' }
 };
 
-/* ---------- 몬스터 (단별) ---------- */
+/* ---------- 몬스터 (단별) ----------
+   f      : 용사(easy) 난이도 그림
+   champF : 마스터·레전드에서 쓰는 강해진 모습                        */
 const MONS = [
-  {t:2, f:'mon-2.png', e:'👾', name:'말랑 슬라임',   taunt:['두 배로 늘어난다!','물렁물렁 공격!']},
-  {t:3, f:'mon-3.png', e:'🦇', name:'밤하늘 박쥐',   taunt:['세 마리씩 날아간다!','어둠 속이다!']},
-  {t:4, f:'mon-4.png', e:'🕷️', name:'그물 거미',     taunt:['네 칸 거미줄이다!','걸려들었군!']},
-  {t:5, f:'mon-5.png', e:'🐺', name:'달빛 늑대',     taunt:['다섯 걸음마다 짖는다!','아우우우!']},
-  {t:6, f:'mon-6.png', e:'🗿', name:'바위 골렘',     taunt:['여섯 개의 돌이다!','부서지지 않는다!']},
-  {t:7, f:'mon-7.png', e:'🧙', name:'안개 마법사',   taunt:['일곱 개의 주문!','안개 속으로!']},
-  {t:8, f:'mon-8.png', e:'💀', name:'해골 기사',     taunt:['여덟 개의 갈비뼈!','덜그럭덜그럭!']},
-  {t:9, f:'mon-9.png', e:'🐂', name:'미노타우로스', taunt:['아홉 번 땅을 구른다!','뿔을 조심해!']}
+  {t:2, f:'mon-2.png', champF:'mon-2-champion.png', e:'👾', name:'말랑 슬라임',   taunt:['두 배로 늘어난다!','물렁물렁 공격!']},
+  {t:3, f:'mon-3.png', champF:'mon-3-champion.png', e:'🦇', name:'밤하늘 박쥐',   taunt:['세 마리씩 날아간다!','어둠 속이다!']},
+  {t:4, f:'mon-4.png', champF:'mon-4-champion.png', e:'🕷️', name:'그물 거미',     taunt:['네 칸 거미줄이다!','걸려들었군!']},
+  {t:5, f:'mon-5.png', champF:'mon-5-champion.png', e:'🐺', name:'달빛 늑대',     taunt:['다섯 걸음마다 짖는다!','아우우우!']},
+  {t:6, f:'mon-6.png', champF:'mon-6-champion.png', e:'🗿', name:'바위 골렘',     taunt:['여섯 개의 돌이다!','부서지지 않는다!']},
+  {t:7, f:'mon-7.png', champF:'mon-7-champion.png', e:'🧙', name:'안개 마법사',   taunt:['일곱 개의 주문!','안개 속으로!']},
+  {t:8, f:'mon-8.png', champF:'mon-8-champion.png', e:'💀', name:'해골 기사',     taunt:['여덟 개의 갈비뼈!','덜그럭덜그럭!']},
+  {t:9, f:'mon-9.png', champF:'mon-9-champion.png', e:'🐂', name:'미노타우로스', taunt:['아홉 번 땅을 구른다!','뿔을 조심해!']}
 ];
-const BOSS = {t:'boss', f:'mon-boss.png', e:'🐉', name:'구구단 드래곤',
+const BOSS = {t:'boss', f:'mon-boss.png', champF:'mon-boss-champion.png', e:'🐉',
+              name:'구구단 드래곤',
               taunt:['2단부터 9단까지 전부다!','보물은 못 가져간다!']};
+
+/* 난이도별 몬스터 그림 — 그림을 가져오는 곳은 전부 이 함수를 씁니다.
+   레전드 전용 그림을 쓰기로 하면 MONS 에 legendF 를 넣고
+   아래 한 줄만 풀면 됩니다:
+       if(tier==='hard' && mon.legendF) return mon.legendF;          */
+function monsterArt(mon, tierId){
+  const tier = tierId || (Save.s.progress && Save.s.progress.difficulty) || 'easy';
+  if(tier==='easy') return mon.f;
+  return mon.champF || mon.f;
+}
 
 /* ---------- 몬스터 격파 보상 아이템 ---------- */
 const DROPS = {
