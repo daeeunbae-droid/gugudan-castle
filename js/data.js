@@ -118,10 +118,10 @@ NODES.push({type:'boss'});
 NODES.push({type:'treasure'});
 
 /* 이 자리에 배정된 단. 아직 안 골랐으면 undefined */
-function tableAt(slot){ return Save.s.progress.order[slot]; }
+function tableAt(slot){ return Save.run().order[slot]; }
 /* 아직 안 고른 단들 */
 function remainingTables(){
-  const done = Save.s.progress.order;
+  const done = Save.run().order;
   return MONS.map(m=>m.t).filter(t=>!done.includes(t))
              .sort((a,b)=>TABLE_TIP[a].lv - TABLE_TIP[b].lv);
 }

@@ -3,7 +3,21 @@
    sync.js 가 설정돼 있으면 클라우드로 복사됩니다.
 ========================================================= */
 const SAVE_KEY = 'gugudan-castle-v1';
-const SAVE_VERSION = 2;
+const SAVE_VERSION = 3;
+
+/* 난이도(run) 하나의 진행 상태. 세 난이도가 서로 간섭하지 않도록
+   지도 위치·고른 단·클리어 기록을 난이도별로 따로 갖습니다.        */
+const RUN_TIERS = ['easy','normal','hard'];
+function blankRun(){
+  return { pos:0,
+           order:[ (typeof FIRST_TABLE!=='undefined' ? FIRST_TABLE : 2) ],
+           cleared:[], trained:[], started:false };
+}
+function blankRuns(){
+  const o={};
+  RUN_TIERS.forEach(t=>{ o[t]=blankRun(); });
+  return o;
+}
 
 /* 종별 펫 보유 칸을 기본값으로 만들어 둡니다 (없으면 빈 오브젝트) */
 function blankPets(){
@@ -18,8 +32,10 @@ function blankSave(){
   return {
     v: SAVE_VERSION,
     player:   { name:'', hero:'girl', photo:null, photoHero:null },
-    progress: { pos:0, order:[ (typeof FIRST_TABLE!=='undefined' ? FIRST_TABLE : 2) ],
-                cleared:[], trained:[], difficulty:'easy', started:false },
+    /* progress 는 이제 "지금 어느 난이도를 하고 있는지"만 가리킵니다.
+       실제 진행 상태는 runs[난이도] 안에 있습니다.                 */
+    progress: { difficulty:'easy' },
+    runs:     blankRuns(),
     wallet:   { gold:0 },
     potions:  { energy:0, time:0, hint:0 },
     items:    [],                 // 획득/구매한 아이템 id
@@ -43,7 +59,7 @@ function loadSave(){
     if(!raw) return false;
     const d = JSON.parse(raw);
     S = migrate(d);
-    return !!(S.progress && S.progress.started);
+    return Save.anyStarted();
   }catch(e){
     console.warn('저장 읽기 실패 — 새로 시작합니다', e);
     S = blankSave();
@@ -81,6 +97,26 @@ function migrate(d){
     delete d.pet;
     d.v = 2;
   }
+  /* v2 → v3 : 진행 상태 하나(progress) → 난이도별 진행(runs).
+     그동안 플레이하던 난이도 자리에 그대로 옮깁니다.
+     (무조건 easy 로 넣으면 모험/챔피언으로 하던 기록이 엉뚱한 데로 갑니다) */
+  if(d.v < 3){
+    const p = d.progress || {};
+    const tier = RUN_TIERS.includes(p.difficulty) ? p.difficulty : 'easy';
+    const hadOrder = Array.isArray(p.order) && p.order.length;
+    d.runs = blankRuns();
+    d.runs[tier] = {
+      pos:     p.pos || 0,
+      /* 순서 자유화 이전 저장은 2~9단을 순서대로 걷던 기록입니다 */
+      order:   hadOrder ? p.order.slice()
+                        : (p.started ? [2,3,4,5,6,7,8,9] : blankRun().order),
+      cleared: Array.isArray(p.cleared) ? p.cleared.slice() : [],
+      trained: Array.isArray(p.trained) ? p.trained.slice() : [],
+      started: !!p.started
+    };
+    d.progress = { difficulty: tier };
+    d.v = 3;
+  }
   // 누락 필드 채우기 (구버전 저장이 들어와도 죽지 않도록)
   for(const k of Object.keys(base)){
     if(d[k]===undefined) d[k]=base[k];
@@ -88,10 +124,15 @@ function migrate(d){
       d[k] = Object.assign({}, base[k], d[k]);
     }
   }
-  /* 순서 자유화 이전에 저장된 기록은 2~9단 순서대로 진행 중이었습니다 */
-  if(!Array.isArray(d.progress.order) || !d.progress.order.length){
-    d.progress.order = [2,3,4,5,6,7,8,9];
-  }
+  /* 세 난이도 칸이 모두 온전한지 확인 (손상된 저장이 들어와도 죽지 않도록) */
+  RUN_TIERS.forEach(t=>{
+    const r = Object.assign(blankRun(), d.runs[t]);
+    if(!Array.isArray(r.order) || !r.order.length) r.order = blankRun().order;
+    if(!Array.isArray(r.cleared)) r.cleared = [];
+    if(!Array.isArray(r.trained)) r.trained = [];
+    d.runs[t] = r;
+  });
+  if(!RUN_TIERS.includes(d.progress.difficulty)) d.progress.difficulty='easy';
   d.v = SAVE_VERSION;
   return d;
 }
@@ -107,6 +148,32 @@ function resetSave(){
 const Save = {
   get s(){ return S; },
   set(obj){ S = migrate(obj); },
+  /* ---------- 난이도별 진행 ----------
+     인자를 안 주면 "지금 하고 있는 난이도"의 진행 상태입니다.
+     Save.run().pos / .order / .cleared / .trained / .started      */
+  run(tier){
+    const id = RUN_TIERS.includes(tier) ? tier : S.progress.difficulty;
+    if(!S.runs) S.runs = blankRuns();
+    if(!S.runs[id]) S.runs[id] = blankRun();
+    return S.runs[id];
+  },
+  /* 그 난이도만 처음 상태로 되돌립니다 (다른 난이도는 그대로) */
+  resetRun(tier){
+    if(!RUN_TIERS.includes(tier)) return null;
+    S.runs[tier] = blankRun();
+    S.runs[tier].started = true;
+    return S.runs[tier];
+  },
+  anyStarted(){
+    return RUN_TIERS.some(t=>{ const r=S.runs&&S.runs[t]; return !!(r&&r.started); });
+  },
+  /* 도전 모드처럼 난이도 공용인 해금 조건에 씁니다 */
+  anyCleared(what){
+    return RUN_TIERS.some(t=>{
+      const r=S.runs&&S.runs[t];
+      return !!(r && r.cleared.includes(what));
+    });
+  },
   gold(n){ S.wallet.gold = Math.max(0, S.wallet.gold + n); commit(); },
   potion(kind, n){
     S.potions[kind] = Math.max(0, Math.min(POTION_MAX, (S.potions[kind]||0)+n));

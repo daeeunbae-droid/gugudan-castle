@@ -39,7 +39,7 @@ const Map = {
   },
 
   refresh(){
-    const P=Save.s.progress;
+    const P=Save.run();
     const box=$('nodes'); if(!box) return;
     box.innerHTML='';
     NODES.forEach((n,i)=>{
@@ -85,7 +85,7 @@ const Map = {
   place(p){
     $('walker').style.left=(p.x/VB.w*100)+'%';
     $('walker').style.top =(p.y/VB.h*100)+'%';
-    const petL=Math.max(0,(this.pos[Save.s.progress.pos]||p).L-46);
+    const petL=Math.max(0,(this.pos[Save.run().pos]||p).L-46);
     const q=this.road.getPointAtLength(petL);
     $('pet').style.left=(q.x/VB.w*100)+'%';
     $('pet').style.top =(q.y/VB.h*100)+'%';
@@ -93,7 +93,7 @@ const Map = {
 
   scroll(){
     const sc=$('mapscroll'), wrap=$('mapwrap');
-    const y=this.pos[Save.s.progress.pos].y/VB.h*wrap.offsetHeight;
+    const y=this.pos[Save.run().pos].y/VB.h*wrap.offsetHeight;
     sc.scrollTo({top:Math.max(0,y-sc.clientHeight*.62), behavior:'smooth'});
   },
 
@@ -101,7 +101,7 @@ const Map = {
     if(this.walking) return;
     this.walking=true;
     const w=$('walker'); w.classList.add('step');
-    const P=Save.s.progress;
+    const P=Save.run();
     const from=this.pos[P.pos].L, to=this.pos[target].L;
     const dur=Math.max(600,Math.abs(to-from)*4);
     const t0=performance.now();

@@ -197,12 +197,12 @@ const Choose = {
     show('s-choose');
   },
   pick(t){
-    Save.s.progress.order.push(t);
+    Save.run().order.push(t);
     commit(true);
     chime();
     toast(`${t}단의 길이 열렸어요!`);
     show('s-map');
-    setTimeout(()=>Map.walkTo(Save.s.progress.pos+1),600);
+    setTimeout(()=>Map.walkTo(Save.run().pos+1),600);
   }
 };
 
@@ -243,7 +243,7 @@ function pickDiff(id){
 function startAdventure(){
   const v=$('pname').value.trim();
   Save.s.player.name=v||'용사님';
-  Save.s.progress.started=true;
+  Save.run().started=true;              /* 지금 고른 난이도의 모험을 시작 */
   Save.s.stats.plays++;
   commit(true);
   Map.build();
@@ -269,7 +269,13 @@ function openSettings(){
   $('set-diff').innerHTML=d;
   show('s-settings');
 }
-function setDiff(id){ Save.s.progress.difficulty=id; commit(); openSettings(); drawHUD(); }
+/* 난이도를 바꾸면 그 난이도의 지도로 갈아탑니다.
+   진행 상태는 난이도별로 따로 있으므로 서로 덮어쓰지 않습니다. */
+function setDiff(id){
+  Save.s.progress.difficulty=id;
+  Save.run().started=true;
+  commit(); openSettings(); drawHUD();
+}
 function saveSettings(){
   const s=Save.s;
   s.settings.sfx=$('set-sfx').checked;
@@ -338,10 +344,11 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 
   try{
     const s=Save.s;
-    if(hasSave || s.progress.started){
+    if(hasSave || Save.anyStarted()){
+      const d=DIFF[s.progress.difficulty]||DIFF.easy;
       $('btn-continue').style.display='';
       $('continue-info').textContent =
-        `${s.player.name||'용사'} · ${s.progress.cleared.length}단 클리어 · 🪙${s.wallet.gold}`;
+        `${s.player.name||'용사'} · ${d.name} · ${Save.run().cleared.length}단 클리어 · 🪙${s.wallet.gold}`;
     }
     pickHero(s.player.hero||'girl');
     pickDiff(s.progress.difficulty||'easy');

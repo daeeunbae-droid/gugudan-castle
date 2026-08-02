@@ -24,8 +24,9 @@ const Challenge = {
      desc:'제일 어려운 세 단에 도전!'}
   ],
 
-  /* 보스를 잡아야 열립니다 */
-  unlocked(){ return Save.s.progress.cleared.includes('boss'); },
+  /* 보스를 잡아야 열립니다 — 도전 모드는 난이도 공용 보너스라
+     세 난이도 중 하나라도 드래곤을 잡았으면 열립니다.            */
+  unlocked(){ return Save.anyCleared('boss'); },
 
   /* ---------- 모드 고르기 ---------- */
   render(){

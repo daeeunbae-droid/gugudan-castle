@@ -96,7 +96,7 @@ const Train = {
   next(){
     if(this.idx<9){ this.idx++; this.draw(); return; }
     Tune.stop(); $('player').pause(); chime();
-    const P=Save.s.progress;
+    const P=Save.run();
     if(P.trained.includes(this.table)){        // 복습이면 포션 없이 통과
       show('s-map');
       setTimeout(()=>Map.walkTo(P.pos+1),400);
@@ -127,7 +127,7 @@ const Train = {
     Save.potion(kind,1); glug();
     toast(`${POTIONS[kind].e} ${POTIONS[kind].name} 획득!`);
     show('s-map');
-    setTimeout(()=>Map.walkTo(Save.s.progress.pos+1),500);
+    setTimeout(()=>Map.walkTo(Save.run().pos+1),500);
   },
 
   loadSong(t){

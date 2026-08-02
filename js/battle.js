@@ -8,7 +8,7 @@ const Battle = {
   start(mon, isRetry){
     const d=DIFF[Save.s.progress.difficulty];
     const boss = mon.t==='boss';
-    const replay = Save.s.progress.cleared.includes(mon.t);
+    const replay = Save.run().cleared.includes(mon.t);
     B={
       mon, isRetry:!!isRetry, replay,
       hearts:d.hearts, correct:0, wrong:0, buf:'', locked:false,
@@ -188,7 +188,8 @@ const Battle = {
            * ((B.isRetry||B.replay) ? REWARD.retryPenalty : 1));
 
     const drop = DROPS[B.mon.t];
-    if(!s.progress.cleared.includes(B.mon.t)) s.progress.cleared.push(B.mon.t);
+    const run = Save.run();
+    if(!run.cleared.includes(B.mon.t)) run.cleared.push(B.mon.t);
     Save.addItem(drop.id);
     if(boss){ Save.grantPet('dragon'); }   /* 드래곤도 알로 받아서 부화시킵니다 */
     Save.gold(gold);
@@ -207,14 +208,14 @@ const Battle = {
       $('rs-wrong').textContent=B.wrong;
       $('rs-hearts').textContent=B.hearts;
       /* 다음 자리에 어떤 단이 들어갈지 아직 안 골랐다면 고르러 보냅니다 */
-      const node = NODES[Save.s.progress.pos];
+      const node = NODES[Save.run().pos];
       const slot = node && typeof node.slot==='number' ? node.slot : -1;
       const needPick = slot>=0 && slot+1 < SLOT_COUNT
-                       && Save.s.progress.order.length === slot+1;
+                       && Save.run().order.length === slot+1;
       $('rs-btn').textContent = boss ? '보물 상자로' : (needPick ? '다음 길 고르기' : '다음 길로');
       $('rs-btn').onclick = needPick
         ? ()=>Choose.open()
-        : ()=>{ show('s-map'); setTimeout(()=>Map.walkTo(Save.s.progress.pos+1),400); };
+        : ()=>{ show('s-map'); setTimeout(()=>Map.walkTo(Save.run().pos+1),400); };
       show('s-result'); confetti();
     },800);
   },
