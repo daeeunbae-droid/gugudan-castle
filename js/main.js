@@ -308,6 +308,7 @@ function continueGame(){
 function openSettings(){
   const s=Save.s;
   $('set-sfx').checked=s.settings.sfx;
+  $('set-bgm').checked=s.settings.bgm;
   $('set-music').checked=s.settings.music;
   $('set-voice').checked=s.settings.voice;
   $('set-code').textContent=s.familyCode||'없음';
@@ -331,6 +332,7 @@ function saveSettings(){
   s.settings.sfx=$('set-sfx').checked;
   s.settings.music=$('set-music').checked;
   s.settings.voice=$('set-voice').checked;
+  Bgm.setEnabled($('set-bgm').checked);      /* 배경음악은 즉시 켜고/끄는 효과도 같이 적용 */
   commit(true); toast('저장했어요');
   show('s-map');
 }

@@ -44,7 +44,7 @@ function blankSave(){
     activePet: null,              // 지금 데리고 다니는 종 id (한 마리만)
     facts:    {},                 // "7x8": {seen, wrong}
     stats:    { correct:0, wrong:0, plays:0 },
-    settings: { sfx:true, music:true, voice:true },
+    settings: { sfx:true, music:true, voice:true, bgm:true, bgmVolume:.32 },
     familyCode: null,
     updatedAt: 0
   };
