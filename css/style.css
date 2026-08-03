@@ -72,6 +72,10 @@ input[type=text]:focus{outline:none;border-color:var(--torch)}
 .dcard{border:2px solid #3d2f66;border-radius:12px;padding:9px 12px;cursor:pointer;
   background:rgba(0,0,0,.25)}
 .dcard.sel{border-color:var(--torch);background:rgba(255,181,69,.13)}
+/* 아직 안 열린 난이도 — 갈림길의 .cgcard.locked 와 같은 규칙입니다.
+   시작 화면(아이가 보는 곳)에만 겁니다. 보호자 설정은 일부러 안 잠급니다. */
+.dcard.locked{opacity:.45;cursor:default}
+.dcard.locked:active{transform:none}
 .dcard b{font-size:16px}
 .dcard small{display:block;color:var(--muted);font-size:12px;font-family:'Gaegu',cursive}
 

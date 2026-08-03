@@ -362,10 +362,45 @@ function loadPhoto(e){
   };
   r.readAsDataURL(f);
 }
+/* 시작 화면의 난이도 카드 — 갈림길(Fork)과 똑같은 잠금 규칙을 씁니다.
+   용사는 항상 열려 있고, 마스터는 용사를, 레전드는 마스터를 한 번
+   깨야 열립니다. 잠긴 카드는 사라지지 않고 🔒 로 흐리게 남습니다.
+
+   보호자 설정(setDiff)은 일부러 잠그지 않았습니다 — 어른이 필요할 때
+   난이도를 조절할 수 있어야 하므로. 그래서 설정에서 잠긴 난이도로
+   맞춰 둔 채 "새로 시작하기"로 들어올 수 있는데, 그때는 아래에서
+   열린 난이도 중 가장 높은 것으로 조용히 되돌립니다.              */
+function paintDiffCards(){
+  let cur = Save.s.progress.difficulty || 'easy';
+  if(!Fork.unlocked(cur)){
+    cur = Fork.TIERS.filter(t=>Fork.unlocked(t)).pop() || 'easy';
+    Save.s.progress.difficulty = cur;
+  }
+  document.querySelectorAll('#s-select .dcard').forEach(el=>{
+    const id=el.dataset.d, d=DIFF[id]; if(!d) return;
+    const b=el.querySelector('b'), sm=el.querySelector('small');
+    if(sm && sm.dataset.orig===undefined) sm.dataset.orig=sm.textContent;
+    const open=Fork.unlocked(id);
+    el.classList.toggle('locked', !open);
+    el.classList.toggle('sel', open && id===cur);
+    if(open){
+      if(b)  b.textContent = d.emoji+' '+d.name;
+      if(sm) sm.textContent = sm.dataset.orig;
+    }else{
+      const prev=DIFF[Fork.TIERS[Fork.TIERS.indexOf(id)-1]];
+      if(b)  b.textContent = '🔒 '+d.name;
+      if(sm) sm.textContent = `${prev.name} 모드를 먼저 깨면 열려요`;
+    }
+  });
+}
 function pickDiff(id){
+  if(!Fork.unlocked(id)){
+    const prev=DIFF[Fork.TIERS[Fork.TIERS.indexOf(id)-1]];
+    toast(`🔒 ${prev.name} 모드를 먼저 깨면 열려요`);
+    return;
+  }
   Save.s.progress.difficulty=id;
-  document.querySelectorAll('.dcard').forEach(el=>
-    el.classList.toggle('sel', el.dataset.d===id));
+  paintDiffCards();
 }
 function startAdventure(){
   const v=$('pname').value.trim();
@@ -502,7 +537,7 @@ window.addEventListener('DOMContentLoaded', async ()=>{
         `${s.player.name||'용사'} · ${d.name} · ${Save.run().cleared.length}단 클리어 · 🪙${s.wallet.gold}`;
     }
     pickHero(s.player.hero||'girl');
-    pickDiff(s.progress.difficulty||'easy');
+    paintDiffCards();          /* 잠금 상태까지 같이 그립니다 */
     $('pname').value=s.player.name||'';
     drawHUD();
   }catch(e){ console.warn('초기 화면 그리기 일부 실패',e); }

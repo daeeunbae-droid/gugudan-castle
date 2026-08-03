@@ -39,6 +39,7 @@ function show(id){
   if(id!=='s-battle' && id!=='s-jail') Voice.stop();
   if(id==='s-map') Map.refresh();
   if(id==='s-shop') Shop.open();      /* 들어올 때는 늘 인벤토리 탭부터 */
+  if(id==='s-select') paintDiffCards();  /* 그 사이 열린 난이도를 반영 */
   if(id==='s-challenge') Challenge.render();
   Bgm.forScreen(id);
   drawHUD();
