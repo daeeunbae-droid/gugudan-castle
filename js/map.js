@@ -55,9 +55,9 @@ const Map = {
       d.style.top =(p.y/VB.h*100)+'%';
       d.innerHTML=artHTML(meta.f,meta.e,'art')+`<div class="lbl">${meta.label}</div>`;
       /* 보물을 연 뒤에는 뒤로 걸어갈 수 없습니다.
-         대신 보물 상자를 누르면 갈림길(다음에 뭘 할지)로 갑니다. */
+         대신 보물 상자를 누르면 보너스 스테이지 허브(다음에 뭘 할지)로 갑니다. */
       if(done){
-        if(n.type==='treasure'){ d.onclick=()=>Challenge.startSequence(); d.classList.add('replay'); }
+        if(n.type==='treasure'){ d.onclick=()=>Fork.enter(); d.classList.add('replay'); }
         box.appendChild(d); return;
       }
       const replayable = i<P.pos && (n.type==='battle'||n.type==='boss');

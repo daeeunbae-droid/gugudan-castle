@@ -192,6 +192,10 @@ const Battle = {
     const run = Save.run();
     if(!run.cleared.includes(B.mon.t)) run.cleared.push(B.mon.t);
     Save.addItem(drop.id);
+    /* 그 난이도를 처음 깬 순간 난이도 클리어 아이템도 함께 —
+       Save.addItem 이 중복 방지라 재도전으로 다시 잡아도 늘지 않습니다. */
+    const tierItem = boss ? TIER_ITEMS[s.progress.difficulty] : null;
+    if(tierItem) Save.addItem(tierItem.id);
     if(boss){ Save.grantPet('dragon'); }   /* 드래곤도 알로 받아서 부화시킵니다 */
     Save.gold(gold);
     commit(true);
@@ -204,7 +208,8 @@ const Battle = {
         : (B.mon.t+'단 통과!'+((B.isRetry||B.replay)?' (다시 도전이라 골드 절반)':''));
       $('rs-reward').innerHTML =
         `<div class="rw"><span>🪙</span><b>+${gold}</b><small>골드</small></div>
-         <div class="rw"><span>${drop.e}</span><b>획득</b><small>${drop.name}</small></div>`;
+         <div class="rw"><span>${drop.e}</span><b>획득</b><small>${drop.name}</small></div>`
+        + (tierItem ? `<div class="rw"><span>${tierItem.e}</span><b>획득</b><small>${tierItem.name}</small></div>` : '');
       $('rs-correct').textContent=B.correct;
       $('rs-wrong').textContent=B.wrong;
       $('rs-hearts').textContent=B.hearts;

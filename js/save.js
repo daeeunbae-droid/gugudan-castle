@@ -174,6 +174,16 @@ const Save = {
       return !!(r && r.cleared.includes(what));
     });
   },
+  /* 도전 모드 난이도 연동용 — 지금까지 깬 적 있는 가장 높은 난이도.
+     RUN_TIERS 는 [easy, normal, hard] 순서이므로 뒤에서부터 찾습니다.
+     하나도 못 깼으면(도전 모드가 아직 안 열렸을 때) easy 를 기본값으로. */
+  bestTier(){
+    for(let i=RUN_TIERS.length-1;i>=0;i--){
+      const t=RUN_TIERS[i], r=S.runs&&S.runs[t];
+      if(r && r.cleared.includes('boss')) return t;
+    }
+    return 'easy';
+  },
   gold(n){ S.wallet.gold = Math.max(0, S.wallet.gold + n); commit(); },
   potion(kind, n){
     S.potions[kind] = Math.max(0, Math.min(POTION_MAX, (S.potions[kind]||0)+n));

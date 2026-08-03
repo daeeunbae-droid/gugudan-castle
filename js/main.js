@@ -12,6 +12,19 @@ const Shop = {
   open(){ this.tab='inv'; this.render(); },
   setTab(t){ this.tab=t; this.render(); $('shop-body').scrollTop=0; },
 
+  /* 상점의 뒤로가기 버튼이 돌아갈 화면. 지도·보너스 스테이지 허브 등
+     여러 곳에서 상점으로 들어올 수 있으므로, 들어온 곳으로 그대로
+     돌아가게 진입 지점마다 기록해 둡니다(기본값 지도). 버튼 글자도
+     돌아갈 곳에 맞춰 바꿔 줍니다.                                  */
+  backTo:'s-map',
+  backLabel:{'s-map':'지도로', 's-fork':'보너스 스테이지로'},
+  enterFrom(id){
+    this.backTo=id||'s-map';
+    show('s-shop');
+    const btn=$('shop-back');
+    if(btn) btn.textContent=this.backLabel[this.backTo]||'돌아가기';
+  },
+
   /* 펫 칸. 알일 때는 "먹이를 주면 부화한다"를 크게 알려줍니다.
      경험치는 데리고 다니는 펫에게만 쌓이므로 그 펫을 보여 줍니다.
      교체 그리드(.petswitch)는 인벤토리 탭에서만 보여 줍니다.        */
@@ -107,6 +120,14 @@ const Shop = {
         <div class="se">${d.e}</div><b>${d.name}</b><small>전리품</small></div>`; });
       h+='</div>';
     }
+    /* 난이도(용사·마스터·레전드)를 처음 깼을 때 받은 것 (2026-08-03) */
+    const tierItems=Object.values(TIER_ITEMS).filter(it=>s.items.includes(it.id));
+    if(tierItems.length){
+      h+='<div class="shoplabel">난이도를 깨서 받은 것</div><div class="grid">';
+      tierItems.forEach(it=>{ h+=`<div class="sitem got" onclick="Shop.tapItem()">
+        <div class="se">${it.e}</div><b>${it.name}</b><small>단계 보상</small></div>`; });
+      h+='</div>';
+    }
     /* 상점에서 산 것 — 먹이 같은 소모품은 남지 않으므로 제외 */
     const bought=SHOP.filter(it=>s.items.includes(it.id) && !it.repeat);
     if(bought.length){
@@ -115,7 +136,7 @@ const Shop = {
         <div class="se">${it.e}</div><b>${it.name}</b><small>${it.tag}</small></div>`; });
       h+='</div>';
     }
-    if(!drops.length && !bought.length){
+    if(!drops.length && !tierItems.length && !bought.length){
       h+='<div class="shoplabel">가진 물건</div><p class="tiny">아직 모은 물건이 없어요</p>';
     }
     return h;
@@ -206,9 +227,11 @@ const Choose = {
   }
 };
 
-/* ---------- 보물 이후 갈림길 ----------
+/* ---------- 보물 이후 갈림길 = 보너스 스테이지 허브 ----------
    성을 한 번 깬 뒤 무엇을 할지 고릅니다. 난이도별로 지도가 따로
-   있으므로, 다른 난이도를 골라도 지금까지의 기록은 남아 있습니다.   */
+   있으므로, 다른 난이도를 골라도 지금까지의 기록은 남아 있습니다.
+   2026-08-03부터: 도전 모드(g248/g356/g789)가 강제 순차 진행이 아니라
+   이 허브에서 세 장 중 원하는 것만 골라 풀 수 있는 보너스가 됐습니다.  */
 const Fork = {
   /* 그 난이도가 지금 어떤 상태인지 한 줄로 */
   state(tier){
@@ -218,20 +241,68 @@ const Fork = {
     return {txt:'아직 안 해봤어요', warn:false};
   },
 
-  /* 세 난이도를 항상 다 보여 줍니다.
-     한 단계 위만 열어 주면 레전드를 깬 뒤에는 고를 것이 레전드밖에 남지
-     않고, 쉬운 지도를 다시 걷고 싶을 때 돌아갈 길이 없어집니다.
-     대신 방금 깬 난이도의 바로 윗 단계에 '추천'을 붙여 다음 단계를
+  /* 난이도는 단계적으로 열립니다 — 용사는 항상 열려있고, 마스터는
+     용사 보스를 한 번이라도 잡아야, 레전드는 마스터 보스를 한 번이라도
+     잡아야 열립니다(2026-08-03, 대은님 확정). 한 번 열리면 계속 열려
+     있습니다 — Save.run(tier).cleared 는 난이도별로 따로 쌓이므로
+     (5-4) 이 기록만 보면 되고 별도 필드가 필요 없습니다.            */
+  TIERS: ['easy','normal','hard'],
+  unlocked(tier){
+    const idx=this.TIERS.indexOf(tier);
+    if(idx<=0) return true;                       /* 용사는 항상 열려있음 */
+    const prev=this.TIERS[idx-1];
+    return Save.run(prev).cleared.includes('boss');
+  },
+
+  /* 허브에 "새로" 들어올 때 씁니다 — 보물칸에 도달했거나 다시 눌렀을 때.
+     도전 모드 3장을 전부 다시 고를 수 있는 상태로 리셋한 뒤 엽니다.
+     (허브 안에서 도전 하나를 끝내고 돌아올 때는 open()만 호출되므로
+      done 은 그대로 남아 완료 표시가 유지됩니다.)                    */
+  enter(){
+    Challenge.done = [];
+    this.open();
+  },
+
+  /* 세 난이도를 항상 다 보여 주되, 아직 열리지 않은 난이도는 자물쇠로
+     표시만 하고 고를 수 없게 합니다(unlocked() 참고 — 용사는 항상 열림,
+     마스터는 용사를, 레전드는 마스터를 한 번 깨야 열림). 열린 난이도
+     중에서는 방금 깬 난이도의 바로 윗 단계에 '추천'을 붙여 다음 단계를
      가리키기만 합니다 — 막지는 않습니다.
-     도전 모드 3판(g248→g356→g789)은 이 화면에 오기 전에 이미 다 마친
-     뒤이므로 여기엔 난이도 선택지만 남습니다.                        */
+     도전 모드 3장은 강제가 아니라 이 허브의 첫 번째 묶음으로 같이
+     보여 줍니다 — 완료한 카드는 다시 고를 수 없게 표시만 바뀝니다.    */
   open(){
-    const TIERS=['easy','normal','hard'];
     const here = Save.s.progress.difficulty;
-    const next = TIERS[TIERS.indexOf(here)+1];   /* 없으면(레전드였으면) undefined */
-    let h='';
-    TIERS.forEach(id=>{
+    const next = this.TIERS[this.TIERS.indexOf(here)+1];   /* 없으면(레전드였으면) undefined */
+
+    let h='<p class="grouplabel">🏆 보너스 스테이지 · 도전 모드</p>';
+    Challenge.MODES.forEach(m=>{
+      if(Challenge.done.includes(m.id)){
+        h+=`<div class="cgcard done">
+              <div class="cge">${m.e}</div>
+              <div class="cgtxt"><b>${m.name}</b><em>완료했어요 · 골드는 이미 받았어요</em></div>
+              <div class="chgo">✅</div>
+            </div>`;
+      }else{
+        h+=`<div class="cgcard" onclick="Challenge.start('${m.id}')">
+              <div class="cge">${m.e}</div>
+              <div class="cgtxt"><b>${m.name}</b><em>${m.desc}</em></div>
+              <div class="chgo">▶</div>
+            </div>`;
+      }
+    });
+
+    h+='<p class="grouplabel">⚔️ 다음 모험</p>';
+    this.TIERS.forEach((id,idx)=>{
       const d=DIFF[id]; if(!d) return;
+      if(!this.unlocked(id)){
+        const prevName=DIFF[this.TIERS[idx-1]].name;
+        h+=`<div class="cgcard locked">
+              <div class="cge">🔒</div>
+              <div class="cgtxt"><b>${d.name} 모드</b>
+                <em>${prevName} 모드를 먼저 깨면 열려요</em></div>
+            </div>`;
+        return;
+      }
       const st=this.state(id);
       const now = here===id ? ' · 지금 여기' : '';
       const rec = (id===next) ? '<span class="rec">추천</span>' : '';
@@ -249,6 +320,7 @@ const Fork = {
   /* 고른 난이도만 처음 상태로 되돌리고 그 지도로 옮겨 갑니다 */
   restart(tier){
     const d=DIFF[tier]; if(!d) return;
+    if(!this.unlocked(tier)) return;   /* 잠긴 난이도는 카드에 onclick이 없지만 방어적으로 한 번 더 막음 */
     const st=this.state(tier);
     /* 아직 깨는 중인 기록을 지우게 되는 경우에만 한 번 물어봅니다 */
     if(st.warn && !confirm(`${d.name} 모드는 지금 진행 중이에요.\n처음부터 다시 시작하면 그 지도는 마을부터 다시 걷게 됩니다.\n계속할까요?`)) return;
@@ -309,8 +381,13 @@ function continueGame(){
   show('s-map');
 }
 
-/* ---------- 설정 ---------- */
-function openSettings(){
+/* ---------- 설정 ----------
+   지도 화면·보너스 스테이지 허브 둘 다에서 ⚙️ 로 들어올 수 있으므로,
+   상점과 같은 방식으로 "들어온 곳"을 기억했다가 저장 후 그대로
+   돌아갑니다(기본값 지도).                                         */
+let settingsBackTo='s-map';
+function openSettings(from){
+  settingsBackTo = from || 's-map';
   const s=Save.s;
   $('set-sfx').checked=s.settings.sfx;
   $('set-bgm').checked=s.settings.bgm;
@@ -330,7 +407,7 @@ function openSettings(){
 function setDiff(id){
   Save.s.progress.difficulty=id;
   Save.run().started=true;
-  commit(); openSettings(); drawHUD();
+  commit(); openSettings(settingsBackTo); drawHUD();
 }
 function saveSettings(){
   const s=Save.s;
@@ -339,7 +416,24 @@ function saveSettings(){
   s.settings.voice=$('set-voice').checked;
   Bgm.setEnabled($('set-bgm').checked);      /* 배경음악은 즉시 켜고/끄는 효과도 같이 적용 */
   commit(true); toast('저장했어요');
-  show('s-map');
+  show(settingsBackTo);
+}
+
+/* 안심하고 끝낼 수 있는 "저장하고 나가기" — 사실 게임은 문제 하나
+   풀 때마다 이미 자동 저장되지만(그래서 별도 저장 버튼이 원래 없었지만),
+   "확실히 저장하고 끝냈다"는 안심을 주기 위해 타이틀 화면으로 보내기
+   직전에 한 번 더 commit 하고 안내를 띄웁니다 (2026-08-03). */
+function saveAndExit(){
+  commit(true);
+  const s=Save.s, d=DIFF[s.progress.difficulty]||DIFF.easy;
+  if(Save.anyStarted()){
+    $('btn-continue').style.display='';
+    $('continue-info').textContent =
+      `${s.player.name||'용사'} · ${d.name} · ${Save.run().cleared.length}단 클리어 · 🪙${s.wallet.gold}`;
+  }
+  chime();
+  toast('💾 저장 완료! 안심하고 나가도 돼요');
+  show('s-title');
 }
 async function makeFamilyCode(){
   if(!Sync.ready){

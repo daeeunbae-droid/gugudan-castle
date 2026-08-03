@@ -1,18 +1,22 @@
 /* =========================================================
    challenge.js — 도전 모드 (성을 깬 뒤 반복 복습 + 골드 벌이)
 
-   Battle 과 일부러 분리했습니다. 여기에는 하트도, 시간 제한도,
-   퍼즐방도, 아이템 드랍도 없습니다. 20문제를 쭉 풀고
-   맞힌 만큼 골드를 받는 것이 전부입니다.
+   Battle 과 일부러 분리했습니다. 하트도, 퍼즐방도, 아이템 드랍도
+   없습니다. 20문제를 쭉 풀고 맞힌 만큼 골드를 받는 것이 전부입니다.
    틀린 문제를 대기열 뒤로 보내는 규칙은 Battle 전용이라 쓰지 않습니다.
+
+   2026-08-03부터: 문제당 시간 제한만은 Battle 처럼 있습니다 — 단,
+   본편 난이도와 달리 "지금 선택된 난이도"가 아니라 "지금까지 깬 적
+   있는 가장 높은 난이도"(Save.bestTier())를 기준으로 CHALLENGE_SCALE
+   (data.js)에서 시간·골드를 가져옵니다. 하트가 없으므로 시간 초과는
+   그냥 오답 처리하고 다음 문제로 넘어갑니다(탈락 없음).
 
    몬스터는 '연출'로만 나옵니다. 문제의 단에 맞는 몬스터를 MONS 에서
    찾아 보여주고, 맞히면 흔들립니다. 체력도 승패도 없습니다.
 ========================================================= */
 const Challenge = {
   COUNT: 20,
-  goldPer: 5,          // 정답 1개당
-  perfectBonus: 20,    // 20문제 만점 보너스
+  perfectBonus: 20,    // 20문제 만점 보너스 — 난이도와 무관하게 고정
 
   /* 세 단씩 묶은 그룹. tables × 1~9 = 27조합에서 20문제를 뽑습니다. */
   MODES: [
@@ -28,25 +32,14 @@ const Challenge = {
      세 난이도 중 하나라도 드래곤을 잡았으면 열립니다.            */
   unlocked(){ return Save.anyCleared('boss'); },
 
-  /* ---------- 보물칸 도달 시 강제 순차 진행 (2026-08-02) ----------
-     g248 → g356 → g789 세 판을 스킵·이탈 없이 순서대로 다 마쳐야
-     갈림길(Fork)로 넘어갑니다. seq: 지금 몇 번째 판인지(0~2),
-     시퀀스 밖(진입 전/완료 후)에는 -1. */
-  SEQUENCE: ['g248','g356','g789'],
-  seq: -1,
-
-  startSequence(){
-    this.seq = 0;
-    this.start(this.SEQUENCE[this.seq]);
-  },
-  nextInSequence(){
-    this.seq++;
-    this.start(this.SEQUENCE[this.seq]);
-  },
-  finishSequence(){
-    this.seq = -1;
-    Fork.open();
-  },
+  /* ---------- 보너스 스테이지에서 자유롭게 고르기 (2026-08-03) ----------
+     예전엔 g248→g356→g789 세 판을 스킵·이탈 없이 순서대로 다 마쳐야
+     했지만, 이제는 보너스 스테이지 허브(Fork)에서 세 장 중 원하는 것만
+     골라 풀 수 있습니다(강제 아님).
+     done: "지금 이 허브 방문에서 이미 끝낸 도전"만 기억하는 배열 —
+     Fork.enter() 가 허브에 새로 들어올 때마다(보물칸 재도달 등) 비웁니다.
+     같은 방문 안에서는 완료한 도전을 다시 고를 수 없습니다.        */
+  done: [],
 
   /* ---------- 모드 고르기 ---------- */
   render(){
@@ -77,10 +70,45 @@ const Challenge = {
     this.list=this.buildList(m.id);
     this.i=0; this.buf=''; this.locked=false;
     this.correct=0; this.wrong=0;
-    $('cq-mode').textContent=m.e+' '+m.name;
+    this.scale = CHALLENGE_SCALE[Save.bestTier()] || CHALLENGE_SCALE.easy;
+    const tierName = DIFF[Save.bestTier()].name;
+    $('cq-mode').textContent=m.e+' '+m.name
+      +(this.scale.time ? ` · ${tierName} 기준 ${this.scale.time}초` : '');
     this.buildPad();
     this.draw();
     show('s-cq');
+  },
+
+  /* ---------- 시간 제한 (Battle 과 같은 방식, 하트만 없음) ---------- */
+  startTimer(){
+    this.stopTimer();
+    const wrap=$('cq-timerwrap'), bar=$('cq-timerbar');
+    if(!this.scale.time){ if(wrap) wrap.style.display='none'; return; }
+    const total=this.scale.time*1000;
+    wrap.style.display='block'; bar.style.width='100%';
+    let left=total;
+    this._t=setInterval(()=>{
+      left-=100;
+      bar.style.width=Math.max(0,left/total*100)+'%';
+      bar.classList.toggle('danger', left<total*.3);
+      if(left<=2000 && left%1000<100) tickSfx();
+      if(left<=0){
+        this.stopTimer(); this.locked=true;
+        this.miss(`시간 초과! 정답은 ${this.list[this.i].a*this.list[this.i].b}`);
+      }
+    },100);
+  },
+  stopTimer(){ if(this._t){ clearInterval(this._t); this._t=null; } },
+
+  /* 시간 초과 전용 — submit() 의 오답 경로와 같은 다음 문제 이동을 합니다 */
+  miss(msg){
+    const q=this.list[this.i];
+    Save.fact(q.a,q.b,false);
+    this.wrong++; buzz(); $('cq-fb').textContent=msg;
+    setTimeout(()=>{
+      this.locked=false; this.i++;
+      if(this.i>=this.list.length) this.finish(); else this.draw();
+    }, 1600);
   },
 
   /* Battle·퍼즐방과 같은 12버튼 키패드 */
@@ -129,6 +157,7 @@ const Challenge = {
     $('cq-fb').textContent='';
     $('cq-scroll').scrollTop=0;
     this.buf=''; this.paint();
+    this.startTimer();
   },
 
   paint(){
@@ -146,6 +175,7 @@ const Challenge = {
 
   submit(){
     if(!this.buf) return;
+    this.stopTimer();
     const q=this.list[this.i];
     const ans=q.a*q.b;
     const ok=parseInt(this.buf,10)===ans;
@@ -167,12 +197,13 @@ const Challenge = {
 
   /* ---------- 마무리 · 보상 ---------- */
   reward(){
-    let gold = this.correct*this.goldPer;
+    let gold = this.correct*this.scale.goldPer;
     if(this.correct===this.list.length) gold += this.perfectBonus;
     return gold;
   },
 
   finish(){
+    this.stopTimer();
     const gold=this.reward();
     const perfect=this.correct===this.list.length;
     commit(true);
@@ -185,18 +216,8 @@ const Challenge = {
     $('cd-gold').textContent=gold;
     show('s-cdone');
     grantGold(gold);              /* 골드 지급 + 토스트 + 효과음 */
-    this.updateDoneButtons();
-  },
-
-  /* s-cdone 화면 버튼 — 강제 3연속 진행 중에는 "지도로" 같은 이탈 버튼을
-     두지 않고, 다음 판으로 자동 연결(한 번 탭)합니다. 마지막 판을 마치면
-     갈림길로 넘어갑니다. */
-  updateDoneButtons(){
-    const box=$('cd-actions'); if(!box) return;
-    if(this.seq>=0 && this.seq<this.SEQUENCE.length-1){
-      box.innerHTML=`<button class="btn" onclick="Challenge.nextInSequence()">다음 도전으로! (${this.seq+2}/3)</button>`;
-    }else{
-      box.innerHTML=`<button class="btn" onclick="Challenge.finishSequence()">다음 길 고르기</button>`;
-    }
+    if(!this.done.includes(this.mode.id)) this.done.push(this.mode.id);
+    const box=$('cd-actions');
+    if(box) box.innerHTML=`<button class="btn" onclick="Fork.open()">보너스 스테이지로 돌아가기</button>`;
   }
 };

@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=23">
+<link rel="stylesheet" href="css/style.css?v=25">
 <script>
 /* 이미지 로드 실패 시 이모지로 대체. core.js 보다 먼저 필요하므로 여기 둡니다. */
 function artFail(img,emoji){
@@ -77,8 +77,8 @@ function artFail(img,emoji){
     <div class="hudright">
       <span class="hud-diff pill"></span>
       <span class="hud-gold pill"></span>
-      <button class="iconbtn" onclick="show('s-shop')">🎒</button>
-      <button class="iconbtn" onclick="openSettings()">⚙️</button>
+      <button class="iconbtn" onclick="Shop.enterFrom('s-map')">🎒</button>
+      <button class="iconbtn" onclick="openSettings('s-map')">⚙️</button>
     </div>
   </div>
   <div id="mapscroll">
@@ -211,6 +211,7 @@ function artFail(img,emoji){
 <!-- ============ 도전 모드 · 문제 풀기 ============ -->
 <section id="s-cq" class="screen">
   <div class="btop"><span class="pill" id="cq-mode"></span></div>
+  <div class="timerwrap" id="cq-timerwrap" style="display:none"><div class="timerbar" id="cq-timerbar"></div></div>
   <div id="cq-scroll">
     <div class="bubble">
       <div class="taunt" id="cq-count"></div>
@@ -247,7 +248,7 @@ function artFail(img,emoji){
   </div>
   <p class="eyebrow">가방 · 상점</p>
   <div id="shop-body" class="scrollarea"></div>
-  <button class="btn ghost" onclick="show('s-map')">지도로</button>
+  <button class="btn ghost" id="shop-back" onclick="show(Shop.backTo)">지도로</button>
 </section>
 
 <!-- ============ 설정 (보호자) ============ -->
@@ -273,14 +274,24 @@ function artFail(img,emoji){
   <div class="spacer"></div>
   <button class="btn" onclick="saveSettings()">저장하고 돌아가기</button>
   <div style="height:9px"></div>
+  <button class="btn ghost" onclick="saveAndExit()">저장하고 나가기</button>
+  <div style="height:9px"></div>
   <button class="btn ghost danger" onclick="hardReset()">처음부터 다시 시작</button>
 </section>
 
 <!-- ============ 보물 이후 갈림길 — 다음에 무엇을 할까 ============ -->
 <section id="s-fork" class="screen">
-  <p class="eyebrow">보물을 열었다</p>
-  <h2>다음은 무엇을 할까?</h2>
-  <p class="sub">난이도마다 지도가 따로 있어요 · 골드와 펫은 그대로예요</p>
+  <div class="hud">
+    <div class="who"><div class="mini hud-face"><img src="img/face-girl.png" alt="" onerror="artFail(this,'🙂')"></div><span class="hud-name"></span></div>
+    <div class="hudright">
+      <span class="hud-gold pill"></span>
+      <button class="iconbtn" onclick="Shop.enterFrom('s-fork')">🎒</button>
+      <button class="iconbtn" onclick="openSettings('s-fork')">⚙️</button>
+    </div>
+  </div>
+  <p class="eyebrow">🎁 보물을 열었다!</p>
+  <h2>무엇을 해볼까?</h2>
+  <p class="sub">도전 모드는 보너스예요 · 안 해도 다음 모험으로 갈 수 있어요</p>
   <div id="fk-list" class="scrollarea"></div>
   <div id="fk-foot">
     <button class="btn ghost" onclick="show('s-map')">지도로</button>
@@ -300,22 +311,22 @@ function artFail(img,emoji){
   </div>
   <p class="mistakes" id="ed-weak"></p>
   <div style="height:14px"></div>
-  <button class="btn" onclick="Challenge.startSequence()">다음 길 고르기</button>
+  <button class="btn" onclick="Fork.enter()">다음 길 고르기</button>
   <div style="height:9px"></div>
-  <button class="btn ghost" onclick="show('s-shop')">상점에서 쓰기</button>
+  <button class="btn ghost" onclick="Shop.enterFrom('s-map')">상점에서 쓰기</button>
 </section>
 
 </div>
 
-<script src="js/data.js?v=23"></script>
-<script src="js/sync.js?v=23"></script>
-<script src="js/save.js?v=23"></script>
-<script src="js/audio.js?v=23"></script>
-<script src="js/core.js?v=23"></script>
-<script src="js/map.js?v=23"></script>
-<script src="js/train.js?v=23"></script>
-<script src="js/battle.js?v=23"></script>
-<script src="js/challenge.js?v=23"></script>
-<script src="js/main.js?v=23"></script>
+<script src="js/data.js?v=25"></script>
+<script src="js/sync.js?v=25"></script>
+<script src="js/save.js?v=25"></script>
+<script src="js/audio.js?v=25"></script>
+<script src="js/core.js?v=25"></script>
+<script src="js/map.js?v=25"></script>
+<script src="js/train.js?v=25"></script>
+<script src="js/battle.js?v=25"></script>
+<script src="js/challenge.js?v=25"></script>
+<script src="js/main.js?v=25"></script>
 </body>
 </html>

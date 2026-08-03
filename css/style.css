@@ -327,10 +327,18 @@ audio{width:100%;margin-top:7px;filter:invert(.86) hue-rotate(180deg)}
 .cgcard{display:flex;align-items:center;gap:11px;background:rgba(0,0,0,.3);
   border:2px solid #3d2f66;border-radius:14px;padding:12px 11px;margin-bottom:8px;cursor:pointer}
 .cgcard:active{transform:scale(.98)}
+/* 이미 끝낸 도전 모드 카드 · 아직 안 열린 난이도 카드 — 둘 다 흐리게
+   표시만 하고 누를 수 없게 합니다(onclick 자체가 없음). */
+.cgcard.done,.cgcard.locked{opacity:.45;cursor:default}
+.cgcard.done:active,.cgcard.locked:active{transform:none}
 .cge{font-size:30px;width:40px;text-align:center}
 .cgtxt{flex:1}
 .cgtxt b{font-size:16px;display:block}
 .cgtxt em{font-style:normal;font-family:'Gaegu',cursive;font-size:12px;color:var(--muted)}
+/* 보너스 스테이지 허브의 두 묶음(도전 모드 / 다음 모험)을 나누는 작은 소제목 */
+.grouplabel{font-family:'Gaegu',cursive;font-size:13px;color:var(--muted);
+  margin:14px 0 6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.07)}
+.grouplabel:first-child{margin-top:0;padding-top:0;border-top:none}
 /* 문제 풀기 — 전투와 같은 구조(스크롤 + 고정단) */
 #s-cq.on{height:var(--vh,100dvh);overflow:hidden}
 #cq-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;

@@ -12,6 +12,27 @@ const DIFF = {
             desc:'문제당 5초 · 골드 2.2배 · 단이 섞여 나와요' }
 };
 
+/* ---------- 도전 모드(보너스 스테이지) 난이도 연동 (2026-08-03) ----------
+   본편처럼 하트나 실패는 없지만, "지금까지 깬 적 있는 가장 높은 난이도"에
+   맞춰 문제당 시간 제한과 골드가 살짝 세집니다. 한 번 마스터·레전드를
+   깨고 나면 용사모드로 갈아타도 도전 모드는 계속 이 기준을 씁니다
+   (Save.bestTier() 참고). 만점 보너스(perfectBonus)는 난이도와 무관하게
+   고정입니다.                                                        */
+const CHALLENGE_SCALE = {
+  easy:   { time:0, goldPer:5 },
+  normal: { time:8, goldPer:7 },
+  hard:   { time:5, goldPer:8 }
+};
+
+/* ---------- 난이도 클리어 보상 아이템 (2026-08-03) ----------
+   그 난이도의 보스를 처음 잡은 순간 하나씩 받습니다(Save.addItem 이
+   이미 중복 방지라 재도전으로 다시 잡아도 추가로 늘지 않습니다). */
+const TIER_ITEMS = {
+  easy:   { id:'staff-wizard',      name:'마법사의 지팡이', e:'🪄' },
+  normal: { id:'staff-sage',        name:'현자의 지팡이',   e:'🔮' },
+  hard:   { id:'armor-dragonscale', name:'드래곤의 비늘갑옷', e:'🛡️' }
+};
+
 /* ---------- 몬스터 (단별) ----------
    f       : 용사(easy)   — 기본 모습
    champF  : 마스터(normal) — 강해진 모습
