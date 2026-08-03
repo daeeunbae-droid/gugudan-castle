@@ -130,12 +130,58 @@ const Train = {
     setTimeout(()=>Map.walkTo(Save.run().pos+1),500);
   },
 
+  /* ---------- 훈련소 노래 (2026-08-04) ----------
+     그 단의 노래(songs/song-{단}.mp3)가 있으면 훈련소에 들어오는 순간
+     자동으로 틀어 줍니다 — 2단 훈련소에는 2단 노래, 3단에는 3단 노래.
+     파일이 없는 단은 예전처럼 내장 칩튠(Tune)으로 넘어갑니다.
+
+     예전에는 칩튠 버튼과 mp3 재생기가 따로 놀아서(버튼은 칩튠, 노래는
+     아이가 직접 재생기를 눌러야 함) 정작 그 단 노래가 안 울렸습니다.
+     지금은 '▶ 노래' 버튼 하나가 둘 중 실제로 있는 쪽을 켜고 끕니다.   */
+  hasSong:false,
+
   loadSong(t){
     const p=$('player'), label=$('song-label');
+    Tune.stop();                       /* 단 노래와 칩튠이 겹치지 않게 */
+    this.hasSong=false;
     p.pause(); p.style.display='none';
-    p.onloadeddata=()=>{ p.style.display='block'; label.textContent=t+'단 노래 준비 완료'; };
-    p.onerror=()=>{ p.removeAttribute('src'); p.style.display='none';
-                    label.textContent=t+'단 노래를 켜고 따라 불러요'; };
+    p.onloadeddata=()=>{
+      this.hasSong=true;
+      p.style.display='block';
+      label.textContent=t+'단 노래';
+      if(Save.s.settings.music!==false) this.playSong();
+      this.syncSongBtn();
+    };
+    p.onerror=()=>{
+      p.removeAttribute('src'); p.style.display='none';
+      this.hasSong=false;
+      label.textContent=t+'단 노래를 켜고 따라 불러요';
+      this.syncSongBtn();
+    };
+    p.onplay =()=>this.syncSongBtn();
+    p.onpause=()=>this.syncSongBtn();
     p.src='songs/song-'+t+'.mp3';
+    this.syncSongBtn();
+  },
+
+  /* 브라우저가 자동재생을 막을 수도 있으므로 실패해도 조용히 넘어갑니다
+     — 그때는 아이가 '▶ 노래' 버튼을 직접 누르면 됩니다. */
+  playSong(){
+    const r=$('player').play();
+    if(r && r.catch) r.catch(()=>this.syncSongBtn());
+  },
+
+  /* 버튼 하나로 단 노래(있으면) 또는 칩튠(없으면)을 켜고 끕니다 */
+  toggleSong(){
+    if(!this.hasSong){ Tune.toggle(this.table); this.syncSongBtn(); return; }
+    const p=$('player');
+    if(p.paused) this.playSong(); else p.pause();
+  },
+
+  syncSongBtn(){
+    const b=$('btn-tune'); if(!b) return;
+    const playing = this.hasSong ? !$('player').paused : Tune.on;
+    b.textContent = playing ? '⏸ 정지' : '▶ 노래';
+    b.classList.toggle('playing', playing);
   }
 };

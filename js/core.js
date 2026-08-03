@@ -35,7 +35,8 @@ function show(id){
   el.scrollTop=0;
   window.scrollTo(0,0);
   curScreen=id;
-  if(id!=='s-train') Tune.stop();
+  /* 훈련소를 벗어나면 칩튠도 그 단 노래도 같이 멈춥니다 */
+  if(id!=='s-train'){ Tune.stop(); const p=$('player'); if(p) p.pause(); }
   if(id!=='s-battle' && id!=='s-jail') Voice.stop();
   if(id==='s-map') Map.refresh();
   if(id==='s-shop') Shop.open();      /* 들어올 때는 늘 인벤토리 탭부터 */
